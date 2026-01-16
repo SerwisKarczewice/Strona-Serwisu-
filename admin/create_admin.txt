@@ -1,0 +1,252 @@
+<?php
+
+require_once 'config.php';
+
+$message = '';
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+    $email = trim($_POST['email']);
+    
+    if (empty($username) || empty($password) || empty($email)) {
+        $error = 'Wszystkie pola są wymagane!';
+    } else {
+        try {
+            // Sprawdź czy użytkownik już istnieje
+            $stmt = $pdo->prepare("SELECT id FROM admin_users WHERE username = :username");
+            $stmt->execute([':username' => $username]);
+            
+            if ($stmt->fetch()) {
+                $error = 'Użytkownik o tej nazwie już istnieje!';
+            } else {
+                // Utwórz hash hasła
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                
+                // Dodaj użytkownika
+                $stmt = $pdo->prepare("INSERT INTO admin_users (username, password, email, created_at) VALUES (:username, :password, :email, NOW())");
+                $stmt->execute([
+                    ':username' => $username,
+                    ':password' => $hashed_password,
+                    ':email' => $email
+                ]);
+                
+                $message = 'Konto administratora zostało utworzone pomyślnie!';
+            }
+        } catch (PDOException $e) {
+            $error = 'Błąd bazy danych: ' . $e->getMessage();
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utwórz Administratora</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #ffc107;
+            font-size: 0.9rem;
+        }
+        
+        .warning strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .link a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            color: #004085;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #007bff;
+            font-size: 0.9rem;
+        }
+
+        .credentials {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .credentials p {
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Utwórz Administratora</h1>
+        
+        <div class="warning">
+            <strong>⚠️ WAŻNE!</strong>
+            Po utworzeniu konta USUŃ ten plik (create_admin.php) ze względów bezpieczeństwa!
+        </div>
+        
+        <?php if ($message): ?>
+            <div class="success">
+                ✅ <?php echo $message; ?>
+            </div>
+            
+            <div class="credentials">
+                <p><strong>Możesz się teraz zalogować:</strong></p>
+                <p>URL: <strong>/admin/login.php</strong></p>
+                <p>Login: <strong><?php echo htmlspecialchars($username); ?></strong></p>
+            </div>
+            
+            <div class="link">
+                <a href="admin/login.php">➜ Przejdź do logowania</a>
+            </div>
+        <?php else: ?>
+            <?php if ($error): ?>
+                <div class="error">
+                    ❌ <?php echo $error; ?>
+                </div>
+            <?php endif; ?>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label>Nazwa użytkownika</label>
+                    <input type="text" name="username" required value="admin">
+                </div>
+                
+                <div class="form-group">
+                    <label>Hasło</label>
+                    <input type="password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required value="admin@serwis.pl">
+                </div>
+                
+                <button type="submit">Utwórz Konto</button>
+            </form>
+            
+            <div class="info-box">
+                <strong>💡 Wskazówka:</strong><br>
+                Domyślnie formularz wypełniony jest wartościami:<br>
+                Login: admin<br>
+                Możesz je zmienić przed utworzeniem konta.
+            </div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>
