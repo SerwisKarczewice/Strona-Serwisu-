@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $filename = $_FILES['image']['name'];
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-        // Sprawdź maksymalny rozmiar (5MB)
-        if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
-            $error = 'Plik jest za duży! Maksymalny rozmiar to 5MB.';
+        // Sprawdź maksymalny rozmiar (50MB)
+        if ($_FILES['image']['size'] > 50 * 1024 * 1024) {
+            $error = 'Plik jest za duży! Maksymalny rozmiar to 50MB.';
         }
         // Sprawdź rozszerzenie
         elseif (!in_array($ext, $allowed)) {

@@ -77,7 +77,7 @@ $news_items = $stmt->fetchAll();
     <title>Serwis Komputerowy - Profesjonalna Naprawa i Modernizacja | Szybko i Tanio</title>
     <link rel="canonical" href="https://twojadomena.pl/">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/home.css?v=1.1">
 </head>
 
 <body>
@@ -145,11 +145,11 @@ $news_items = $stmt->fetchAll();
             <div class="why-grid">
                 <div class="why-card">
                     <div class="why-icon">
-                        <i class="fas fa-user-graduate"></i>
+                        <i class="fas fa-money-bill-wave"></i>
                     </div>
-                    <h3>Młodzi Eksperci</h3>
-                    <p>Jesteśmy uczniami technikum. Łączymy świeżą szkolną wiedzę z pasją. Jesteśmy na bieżąco z
-                        nowinkami, których rutynowe serwisy często nie śledzą.</p>
+                    <h3>Najtańsi na rynku</h3>
+                    <p>Porównując ceny innych serwisów i sklepów z elektroniką jesteśmy w stanie zaoferować najniższe
+                        ceny na rynku.</p>
                 </div>
                 <div class="why-card">
                     <div class="why-icon">
@@ -314,6 +314,44 @@ $news_items = $stmt->fetchAll();
         <div class="container">
             <h2 class="section-title">Formularz Kontaktowy</h2>
             <div class="contact-wrapper">
+
+                <form class="form" id="contactForm" method="POST" action="send_message.php">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Imię i Nazwisko *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Numer Telefonu *</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Adres Zamieszkania</label>
+                        <input type="text" id="address" name="address"
+                            placeholder="np. ul. Przykładowa 123, 00-001 Twoja miejscowość">
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Temat Wiadomości *</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Treść Wiadomości *</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="privacy" name="privacy" required>
+                            <span>Akceptuję politykę prywatności i wyrażam zgodę na przetwarzanie moich danych osobowych
+                                *</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Wyślij Wiadomość
+                    </button>
+                    <div id="formMessage" class="form-message"></div>
+                </form>
                 <div class="contact-info">
                     <h3>Skontaktuj się z nami</h3>
                     <p>Masz pytania? Potrzebujesz wyceny? Wypełnij formularz, a my skontaktujemy się z Tobą najszybciej
@@ -354,43 +392,6 @@ $news_items = $stmt->fetchAll();
                         Jeśli nieodbierzesz, wyślemy sms-a.
                     </b>
                 </div>
-                <form class="form" id="contactForm" method="POST" action="send_message.php">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="name">Imię i Nazwisko *</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Numer Telefonu *</label>
-                            <input type="tel" id="phone" name="phone" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Adres Zamieszkania</label>
-                        <input type="text" id="address" name="address"
-                            placeholder="np. ul. Przykładowa 123, 00-001 Twoja miejscowość">
-                    </div>
-                    <div class="form-group">
-                        <label for="subject">Temat Wiadomości *</label>
-                        <input type="text" id="subject" name="subject" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Treść Wiadomości *</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="privacy" name="privacy" required>
-                            <span>Akceptuję politykę prywatności i wyrażam zgodę na przetwarzanie moich danych osobowych
-                                *</span>
-                        </label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i>
-                        Wyślij Wiadomość
-                    </button>
-                    <div id="formMessage" class="form-message"></div>
-                </form>
             </div>
         </div>
     </section>

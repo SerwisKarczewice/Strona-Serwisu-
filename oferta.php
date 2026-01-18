@@ -41,20 +41,21 @@ $packages = $stmt->fetchAll();
       "name": "Naprawa i Serwis Komputerowy",
       "provider": {
         "@type": "LocalBusiness",
-        "name": "TechService",
+        "name": "TechService - Serwis Komputerowy Karczewice",
         "image": "https://twojadomena.pl/images/logo.png",
+        "telephone": "+48 662 993 490",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "ul. Przykładowa 123",
-          "addressLocality": "Warszawa",
-          "postalCode": "00-001",
+          "streetAddress": "ul. Nadrzeczna 3b",
+          "addressLocality": "Karczewice",
+          "postalCode": "42-270",
           "addressCountry": "PL"
         },
         "priceRange": "$$"
       },
       "areaServed": {
         "@type": "City",
-        "name": "Warszawa"
+        "name": "Karczewice"
       },
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
@@ -181,8 +182,6 @@ $packages = $stmt->fetchAll();
             </div>
         </div>
     </section>
-    <!-- self-add -->
-
     <section class="cta-section">
         <div class="container">
             <div class="cta-content">

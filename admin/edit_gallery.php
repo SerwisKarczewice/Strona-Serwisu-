@@ -32,7 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $filename = $_FILES['image']['name'];
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-        if (in_array($ext, $allowed)) {
+        if ($_FILES['image']['size'] > 50 * 1024 * 1024) {
+            $error = 'Plik jest za duży! Maksymalny rozmiar to 50MB.';
+        } elseif (in_array($ext, $allowed)) {
             $new_filename = 'gallery_' . time() . '_' . uniqid() . '.' . $ext;
             $upload_path = '../../GalleryPhotos/';
 
@@ -130,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         <?php endif; ?>
                         <input type="file" id="image" name="image" accept="image/*">
-                        <small>Akceptowane formaty: JPG, PNG, GIF, WEBP (max 5MB)</small>
+                        <small>Akceptowane formaty: JPG, PNG, GIF, WEBP (max 50MB)</small>
                     </div>
 
                     <div class="form-actions">

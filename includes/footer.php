@@ -9,25 +9,14 @@
                             class="fab fa-facebook-f"></i></a>
                     <a href="https://www.olx.pl/oferty/uzytkownik/2MB74f/?my_ads=0" target="_blank" aria-label="OLX"><i
                             class="fas fa-shopping-bag"></i></a>
-                    <!-- <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a> -->
                 </div>
             </div>
             <div class="footer-col">
                 <h4>Menu</h4>
                 <ul>
                     <li><a href="index.php">Strona Główna</a></li>
-                    <li><a href="o-nas.php">O Nas</a></li>
                     <li><a href="oferta.php">Oferta</a></li>
                     <li><a href="produkty.php">Produkty</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Pomoc</h4>
-                <ul>
-                    <li><a href="o-nas.php#dodatkowe-informacje">O nas - dodatkowe informacje</a></li>
-                    <li><a href="kontakt.php">Kontakt</a></li>
-
                 </ul>
             </div>
             <div class="footer-col">

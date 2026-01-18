@@ -37,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $filename = $_FILES['image']['name'];
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-        if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
-            $error = 'Plik jest za duży! Maksymalny rozmiar to 5MB.';
+        if ($_FILES['image']['size'] > 50 * 1024 * 1024) {
+            $error = 'Plik jest za duży! Maksymalny rozmiar to 50MB.';
         } elseif (!in_array($ext, $allowed)) {
             $error = 'Nieprawidłowy format pliku!';
         } else {
