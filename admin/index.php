@@ -22,6 +22,10 @@ $total_gallery = $stmt->fetch()['total'];
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM services WHERE is_active = 1");
 $active_services = $stmt->fetch()['total'];
 
+// Licznik odwiedzin
+require_once '../includes/visit_counter.php';
+$total_visits = get_site_visits();
+
 // Ostatnie wiadomości
 $stmt = $pdo->query("SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT 5");
 $recent_messages = $stmt->fetchAll();
@@ -38,7 +42,7 @@ $recent_news = $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administracyjny - Serwis Komputerowy</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -102,6 +106,16 @@ $recent_news = $stmt->fetchAll();
                 <div class="stat-content">
                     <h3>Aktywne Usługi</h3>
                     <p class="stat-number"><?php echo $active_services; ?></p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon visits">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Odwiedziny Strony</h3>
+                    <p class="stat-number"><?php echo number_format($total_visits, 0, ',', ' '); ?></p>
                 </div>
             </div>
         </div>

@@ -4,6 +4,10 @@ require_once 'config.php';
 // Pobierz aktualności z bazy danych
 $stmt = $pdo->query("SELECT * FROM news WHERE published = 1 ORDER BY created_at DESC LIMIT 3");
 $news_items = $stmt->fetchAll();
+
+// Licznik odwiedzin
+require_once 'includes/visit_counter.php';
+increment_site_visits();
 ?>
 <!DOCTYPE html>
 <html lang="pl">
