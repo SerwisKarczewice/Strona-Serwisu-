@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-group">
-                        <label for="image">Zdjęcie * (maks. 5MB)</label>
+                        <label for="image">Zdjęcie * (maks. 50MB)</label>
                         <input type="file" id="image" name="image" accept="image/*" required>
                         <small>Akceptowane formaty: JPG, PNG, GIF, WEBP</small>
                         <div id="imagePreview" style="margin-top: 15px;"></div>
@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     preview.innerHTML = `
                         <div style="text-align: center;">
                             <p style="margin-bottom: 10px; font-weight: 600; color: #2c3e50;">Podgląd:</p>
-                            <img src="${e.target.result}" style="max-width: 400px; max-height: 400px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <img src="${e.target.result}">
                         </div>
                     `;
                 };
@@ -177,44 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 
-    <style>
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-            background: white;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #ff6b35;
-        }
-    </style>
 </body>
 
 </html>

@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         <?php endif; ?>
                         <input type="file" id="image" name="image" accept="image/*">
-                        <small>Akceptowane formaty: JPG, PNG, GIF, WEBP (max 5MB)</small>
+                        <small>Akceptowane formaty: JPG, PNG, GIF, WEBP (max 50MB)</small>
                         <div id="imagePreview" style="margin-top: 15px;"></div>
                     </div>
 

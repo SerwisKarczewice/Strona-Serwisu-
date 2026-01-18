@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-group">
-                        <label for="image">Zdjęcie Produktu (maks. 5MB)</label>
+                        <label for="image">Zdjęcie Produktu (maks. 50MB)</label>
                         <input type="file" id="image" name="image" accept="image/*">
                         <small>Akceptowane formaty: JPG, PNG, GIF, WEBP</small>
                         <div id="imagePreview" style="margin-top: 15px;"></div>
