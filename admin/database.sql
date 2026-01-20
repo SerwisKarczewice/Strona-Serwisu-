@@ -192,6 +192,7 @@ CREATE TABLE `products` (
   `image_path` varchar(500) DEFAULT NULL,
   `olx_link` varchar(500) DEFAULT NULL,
   `featured` tinyint(1) DEFAULT 0,
+  `is_visible` tinyint(1) DEFAULT 1,
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -407,6 +408,224 @@ ALTER TABLE `invoice_items`
 --
 ALTER TABLE `news`
   ADD CONSTRAINT `news_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `admin_users` (`id`) ON DELETE SET NULL;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `team_members`
+--
+
+CREATE TABLE `team_members` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `role` varchar(100) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `financial_contributions`
+--
+
+CREATE TABLE `financial_contributions` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `team_member_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `description` text DEFAULT NULL,
+  `contributed_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `product_sales`
+--
+
+CREATE TABLE `product_sales` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `sale_price` decimal(10,2) NOT NULL,
+  `sale_cost` decimal(10,2) NOT NULL,
+  `profit` decimal(10,2) NOT NULL,
+  `invoice_id` int(11) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `sold_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `profit_distributions`
+--
+
+CREATE TABLE `profit_distributions` (
+  `id` int(11) NOT NULL,
+  `sale_id` int(11) NOT NULL,
+  `team_member_id` int(11) NOT NULL,
+  `contribution_percentage` decimal(5,2) NOT NULL,
+  `profit_share` decimal(10,2) NOT NULL,
+  `distributed_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `service_executions`
+--
+
+CREATE TABLE `service_executions` (
+  `id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `invoice_id` int(11) DEFAULT NULL,
+  `service_price` decimal(10,2) NOT NULL,
+  `executed_at` datetime NOT NULL,
+  `notes` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `service_team`
+--
+
+CREATE TABLE `service_team` (
+  `id` int(11) NOT NULL,
+  `execution_id` int(11) NOT NULL,
+  `team_member_id` int(11) NOT NULL,
+  `payment_share` decimal(10,2) NOT NULL,
+  `assigned_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Indeksy dla tabeli `team_members`
+--
+ALTER TABLE `team_members`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_name` (`name`),
+  ADD KEY `idx_active` (`is_active`);
+
+--
+-- Indeksy dla tabeli `financial_contributions`
+--
+ALTER TABLE `financial_contributions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_product` (`product_id`),
+  ADD KEY `idx_member` (`team_member_id`),
+  ADD KEY `idx_contributed_at` (`contributed_at`);
+
+--
+-- Indeksy dla tabeli `product_sales`
+--
+ALTER TABLE `product_sales`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_product` (`product_id`),
+  ADD KEY `idx_invoice` (`invoice_id`),
+  ADD KEY `idx_sold_at` (`sold_at`);
+
+--
+-- Indeksy dla tabeli `profit_distributions`
+--
+ALTER TABLE `profit_distributions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_sale` (`sale_id`),
+  ADD KEY `idx_member` (`team_member_id`),
+  ADD KEY `idx_distributed_at` (`distributed_at`);
+
+--
+-- Indeksy dla tabeli `service_executions`
+--
+ALTER TABLE `service_executions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_service` (`service_id`),
+  ADD KEY `idx_invoice` (`invoice_id`),
+  ADD KEY `idx_executed_at` (`executed_at`);
+
+--
+-- Indeksy dla tabeli `service_team`
+--
+ALTER TABLE `service_team`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_execution` (`execution_id`),
+  ADD KEY `idx_member` (`team_member_id`);
+
+--
+-- AUTO_INCREMENT for table `team_members`
+--
+ALTER TABLE `team_members`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+--
+-- AUTO_INCREMENT for table `financial_contributions`
+--
+ALTER TABLE `financial_contributions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+--
+-- AUTO_INCREMENT for table `product_sales`
+--
+ALTER TABLE `product_sales`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+--
+-- AUTO_INCREMENT for table `profit_distributions`
+--
+ALTER TABLE `profit_distributions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+--
+-- AUTO_INCREMENT for table `service_executions`
+--
+ALTER TABLE `service_executions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+--
+-- AUTO_INCREMENT for table `service_team`
+--
+ALTER TABLE `service_team`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+--
+-- Constraints for table `financial_contributions`
+--
+ALTER TABLE `financial_contributions`
+  ADD CONSTRAINT `fc_product_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fc_member_fk` FOREIGN KEY (`team_member_id`) REFERENCES `team_members` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `product_sales`
+--
+ALTER TABLE `product_sales`
+  ADD CONSTRAINT `ps_product_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `ps_invoice_fk` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `profit_distributions`
+--
+ALTER TABLE `profit_distributions`
+  ADD CONSTRAINT `pd_sale_fk` FOREIGN KEY (`sale_id`) REFERENCES `product_sales` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pd_member_fk` FOREIGN KEY (`team_member_id`) REFERENCES `team_members` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `service_executions`
+--
+ALTER TABLE `service_executions`
+  ADD CONSTRAINT `se_service_fk` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `se_invoice_fk` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `service_team`
+--
+ALTER TABLE `service_team`
+  ADD CONSTRAINT `st_execution_fk` FOREIGN KEY (`execution_id`) REFERENCES `service_executions` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `st_member_fk` FOREIGN KEY (`team_member_id`) REFERENCES `team_members` (`id`) ON DELETE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

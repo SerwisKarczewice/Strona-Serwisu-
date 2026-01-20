@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 
-$stmt = $pdo->query("SELECT * FROM products ORDER BY featured DESC, created_at DESC");
+$stmt = $pdo->query("SELECT * FROM products WHERE is_visible = 1 ORDER BY featured DESC, created_at DESC");
 $products = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>

@@ -8,6 +8,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
 
 $product = null;
 $error = '';
+$team_members = [];
 
 if (isset($_GET['id'])) {
     $stmt = $pdo->prepare("SELECT * FROM products WHERE id = :id");
@@ -18,9 +19,47 @@ if (isset($_GET['id'])) {
         header('Location: products.php');
         exit;
     }
+    
+    // Get team members for contributions
+    $team_members = $pdo->query("SELECT * FROM team_members WHERE is_active = 1 ORDER BY name")->fetchAll();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Handle contribution submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_contribution'])) {
+    try {
+        $team_member_id = intval($_POST['team_member_id'] ?? 0);
+        $amount = floatval($_POST['contribution_amount'] ?? 0);
+        $description = trim($_POST['contribution_description'] ?? '');
+        
+        if ($team_member_id > 0 && $amount > 0) {
+            $stmt = $pdo->prepare("INSERT INTO financial_contributions (product_id, team_member_id, amount, description, contributed_at) VALUES (?, ?, ?, ?, NOW())");
+            $stmt->execute([$product['id'], $team_member_id, $amount, $description]);
+            $_SESSION['contribution_added'] = true;
+        }
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
+}
+
+// Handle contribution deletion
+if (isset($_GET['delete_contribution'])) {
+    try {
+        $pdo->prepare("DELETE FROM financial_contributions WHERE id = ? AND product_id = ?")->execute([$_GET['delete_contribution'], $_GET['id']]);
+        $_SESSION['contribution_deleted'] = true;
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
+}
+
+// Get existing contributions for this product
+$contributions = [];
+if ($product) {
+    $stmt = $pdo->prepare("SELECT fc.id, fc.team_member_id, fc.amount, fc.description, tm.name FROM financial_contributions fc JOIN team_members tm ON fc.team_member_id = tm.id WHERE fc.product_id = ? ORDER BY tm.name");
+    $stmt->execute([$product['id']]);
+    $contributions = $stmt->fetchAll();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['add_contribution'])) {
     $name = trim($_POST['name']);
     $description = trim($_POST['description']);
     $price = floatval($_POST['price']);
@@ -65,7 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Zapisz zmiany jeśli nie było błędu
     if (empty($error)) {
         try {
-            $stmt = $pdo->prepare("UPDATE products SET name = :name, description = :description, price = :price, category = :category, stock = :stock, image_path = :image_path, olx_link = :olx_link, featured = :featured, updated_at = NOW() WHERE id = :id");
+            $featured = isset($_POST['featured']) ? 1 : 0;
+            $is_visible = isset($_POST['is_visible']) ? 1 : 0;
+            $stmt = $pdo->prepare("UPDATE products SET name = :name, description = :description, price = :price, category = :category, stock = :stock, image_path = :image_path, olx_link = :olx_link, featured = :featured, is_visible = :is_visible, updated_at = NOW() WHERE id = :id");
             $stmt->execute([
                 ':name' => $name,
                 ':description' => $description,
@@ -75,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':image_path' => $image_path,
                 ':olx_link' => $olx_link,
                 ':featured' => $featured,
+                ':is_visible' => $is_visible,
                 ':id' => $_GET['id']
             ]);
 
@@ -116,6 +158,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="fas fa-exclamation-circle"></i>
                         <?php echo htmlspecialchars($error); ?>
                     </div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['contribution_added'])): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        Wkład finansowy został dodany!
+                    </div>
+                    <?php unset($_SESSION['contribution_added']); ?>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['contribution_deleted'])): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        Wkład finansowy został usunięty!
+                    </div>
+                    <?php unset($_SESSION['contribution_deleted']); ?>
                 <?php endif; ?>
 
                 <form method="POST" enctype="multipart/form-data" class="admin-form">
@@ -200,8 +258,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="checkbox" name="featured" <?php echo $product['featured'] ? 'checked' : ''; ?>>
                             <span>Wyróżniony produkt (bestseller)</span>
                         </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="is_visible" <?php echo $product['is_visible'] ? 'checked' : ''; ?>>
+                            <span>Widoczny dla klientów</span>
+                        </label>
                     </div>
+                    <!-- Sekcja wkładów finansowych -->
+                    <div style="background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                        <h3 style="margin-top: 0; margin-bottom: 15px; color: #2c3e50;">
+                            <i class="fas fa-money-bill-wave"></i> Wkłady finansowe (opcjonalnie)
+                        </h3>
+                        <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">
+                            Dodaj osoby które inwestowały pieniądze w ten produkt. Wkłady będą automatycznie dzielić zysk ze sprzedaży.
+                        </p>
 
+                        <!-- Forma dodania wkładu -->
+                        <?php if (!empty($team_members)): ?>
+                        <div class="form-row" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div class="form-group">
+                                <label for="team_member_id">Członek zespołu</label>
+                                <select id="team_member_id" name="team_member_id">
+                                    <option value="">-- Wybierz osobę --</option>
+                                    <?php foreach ($team_members as $member): ?>
+                                        <option value="<?php echo $member['id']; ?>"><?php echo htmlspecialchars($member['name']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="contribution_amount">Kwota (zł)</label>
+                                <input type="number" id="contribution_amount" name="contribution_amount" step="0.01" min="0" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="contribution_description">Opis (np. CPU, RAM, SSD)</label>
+                                <input type="text" id="contribution_description" name="contribution_description" placeholder="Komponenty...">
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end;">
+                                <button type="submit" name="add_contribution" value="1" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Dodaj
+                                </button>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <!-- Lista wkładów -->
+                        <?php if (!empty($contributions)): ?>
+                        <div class="contributions-table">
+                            <table class="data-table" style="margin: 0;">
+                                <thead>
+                                    <tr>
+                                        <th>Osoba</th>
+                                        <th>Kwota</th>
+                                        <th>Procent</th>
+                                        <th>Opis</th>
+                                        <th>Akcja</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    $total_contribs = array_sum(array_column($contributions, 'amount'));
+                                    foreach ($contributions as $contrib): 
+                                        $percent = ($contrib['amount'] / $total_contribs) * 100;
+                                    ?>
+                                        <tr>
+                                            <td><strong><?php echo htmlspecialchars($contrib['name']); ?></strong></td>
+                                            <td><?php echo number_format($contrib['amount'], 2); ?> zł</td>
+                                            <td><?php echo number_format($percent, 1); ?>%</td>
+                                            <td style="color: #666; font-size: 0.9rem;"><?php echo htmlspecialchars($contrib['description'] ?? '-'); ?></td>
+                                            <td>
+                                                <a href="?id=<?php echo $product['id']; ?>&delete_contribution=<?php echo $contrib['id']; ?>" onclick="return confirm('Usunąć wkład?')" class="btn-icon delete" title="Usuń">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <tr style="background: #f0f0f0; font-weight: 600;">
+                                        <td colspan="1">RAZEM:</td>
+                                        <td><?php echo number_format($total_contribs, 2); ?> zł</td>
+                                        <td>100%</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-left: 4px solid #667eea; border-radius: 4px;">
+                            <small><i class="fas fa-info-circle"></i> <strong>Razem wkładów:</strong> <?php echo number_format($total_contribs, 2); ?> zł - Ta kwota będzie kostów przy sprzedaży w systemie finansów</small>
+                        </div>
+                        <?php else: ?>
+                        <div style="padding: 15px; background: white; border-radius: 8px; color: #999; text-align: center;">
+                            <i class="fas fa-inbox"></i> Brak wkładów dla tego produktu
+                        </div>
+                        <?php endif; ?>
+                    </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i>
@@ -269,6 +417,140 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #f8d7da;
             color: #721c24;
             border-left: 4px solid #dc3545;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-icon {
+            padding: 8px;
+            background: #f8f9fa;
+            color: #666;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-icon:hover {
+            color: #ff6b35;
+            border-color: #ff6b35;
+            background: #fff5f0;
+        }
+
+        .btn-icon.delete:hover {
+            color: #dc3545;
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table thead {
+            background: #f8f9fa;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .contributions-table {
+            margin: 15px 0;
         }
     </style>
 </body>

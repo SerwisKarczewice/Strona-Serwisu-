@@ -37,6 +37,10 @@
                 <i class="fas fa-file-invoice"></i>
                 <span>Faktury</span>
             </a>
+            <a href="finances.php" class="nav-link">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Finanse</span>
+            </a>
             <a href="../index.php" class="nav-link" target="_blank">
                 <i class="fas fa-eye"></i>
                 <span>Zobacz stronę</span>

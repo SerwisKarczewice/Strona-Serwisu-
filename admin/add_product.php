@@ -8,6 +8,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
 
 $error = '';
 $success = '';
+$team_members = $pdo->query("SELECT * FROM team_members WHERE is_active = 1 ORDER BY name")->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
@@ -56,7 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Zapisz do bazy tylko jeśli nie było błędu
     if (empty($error)) {
         try {
-            $stmt = $pdo->prepare("INSERT INTO products (name, description, price, category, stock, image_path, olx_link, featured, created_at) VALUES (:name, :description, :price, :category, :stock, :image_path, :olx_link, :featured, NOW())");
+            $featured = isset($_POST['featured']) ? 1 : 0;
+            $is_visible = isset($_POST['is_visible']) ? 1 : 0;
+            $stmt = $pdo->prepare("INSERT INTO products (name, description, price, category, stock, image_path, olx_link, featured, is_visible, created_at, updated_at) VALUES (:name, :description, :price, :category, :stock, :image_path, :olx_link, :featured, :is_visible, NOW(), NOW())");
             $stmt->execute([
                 ':name' => $name,
                 ':description' => $description,
@@ -65,8 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':stock' => $stock,
                 ':image_path' => $image_path,
                 ':olx_link' => $olx_link,
-                ':featured' => $featured
+                ':featured' => $featured,
+                ':is_visible' => $is_visible
             ]);
+
+            $product_id = $pdo->lastInsertId();
+            
+            // Add contributions if provided
+            if (isset($_POST['contributions']) && is_array($_POST['contributions'])) {
+                foreach ($_POST['contributions'] as $contrib) {
+                    if (!empty($contrib['member_id']) && !empty($contrib['amount'])) {
+                        $stmt = $pdo->prepare("INSERT INTO financial_contributions (product_id, team_member_id, amount, description, contributed_at) VALUES (?, ?, ?, ?, NOW())");
+                        $stmt->execute([$product_id, intval($contrib['member_id']), floatval($contrib['amount']), trim($contrib['description'] ?? '')]);
+                    }
+                }
+            }
 
             header('Location: products.php?success=added');
             exit;
@@ -173,8 +189,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="checkbox" name="featured">
                             <span>Wyróżniony produkt (bestseller)</span>
                         </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="is_visible" checked>
+                            <span>Widoczny dla klientów</span>
+                        </label>
                     </div>
+                    <!-- Sekcja wkładów finansowych -->
+                    <div style="background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                        <h3 style="margin-top: 0; margin-bottom: 15px; color: #2c3e50;">
+                            <i class="fas fa-money-bill-wave"></i> Wkłady finansowe (opcjonalnie)
+                        </h3>
+                        <div class="alert alert-info" style="margin-bottom: 15px;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Ważne:</strong> Dodanie wkładów finansowych jest <u>opcjonalne</u>. Jeśli dodasz wkłady tutaj, będą automatycznie naliczane do finansów podczas rejestracji sprzedaży. Jeśli nie dodasz wkładów, będziesz musiał je dodać ręcznie później w sekcji "Finansów".
+                        </div>
+                        <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">
+                            Dodaj osoby które inwestowały pieniądze w ten produkt. Wkłady będą automatycznie dzielić zysk ze sprzedaży.
+                        </p>
 
+                        <?php if (!empty($team_members)): ?>
+                        <div id="contributions-container">
+                            <!-- Dynamically added contribution fields go here -->
+                        </div>
+                        
+                        <button type="button" id="add-contribution-btn" class="btn btn-secondary" style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> Dodaj wkład
+                        </button>
+                        <?php else: ?>
+                        <div style="padding: 15px; background: white; border-radius: 8px; color: #999; text-align: center;">
+                            <i class="fas fa-info-circle"></i> Brak członków zespołu - dodaj ich w sekcji <strong>Finanse → Zespół</strong>
+                        </div>
+                        <?php endif; ?>
+                    </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i>
@@ -248,7 +294,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             outline: none;
             border-color: #ff6b35;
         }
+
+        .contribution-item {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 50px;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .contribution-item .form-group {
+            margin-bottom: 0;
+        }
+
+        .btn-remove-contribution {
+            background: #dc3545;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .btn-remove-contribution:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
     </style>
+
+    <script>
+        const teamMembers = <?php echo json_encode($team_members); ?>;
+        let contributionCount = 0;
+
+        document.getElementById('add-contribution-btn')?.addEventListener('click', function() {
+            addContributionField();
+        });
+
+        function addContributionField() {
+            const container = document.getElementById('contributions-container');
+            const id = contributionCount++;
+            
+            const html = `
+                <div class="contribution-item" id="contribution-${id}">
+                    <div class="form-group">
+                        <label>Osoba</label>
+                        <select name="contributions[${id}][member_id]">
+                            <option value="">-- Wybierz --</option>
+                            ${teamMembers.map(m => `<option value="${m.id}">${m.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kwota (zł)</label>
+                        <input type="number" name="contributions[${id}][amount]" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Opis</label>
+                        <input type="text" name="contributions[${id}][description]" placeholder="CPU, RAM, SSD...">
+                    </div>
+                    <button type="button" class="btn-remove-contribution" onclick="document.getElementById('contribution-${id}').remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+        }
+    </script>
 </body>
 
 </html>
