@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $product_id = $pdo->lastInsertId();
-            
+
             // Add contributions if provided
             if (isset($_POST['contributions']) && is_array($_POST['contributions'])) {
                 foreach ($_POST['contributions'] as $contrib) {
@@ -191,34 +191,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="is_visible" checked>
-                            <span>Widoczny dla klientów</span>
+                            <span>Widoczny dla klientów *Jeśli odznaczysz, produkt trafia do magazynu</span>
                         </label>
                     </div>
                     <!-- Sekcja wkładów finansowych -->
-                    <div style="background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                    <div
+                        style="background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
                         <h3 style="margin-top: 0; margin-bottom: 15px; color: #2c3e50;">
                             <i class="fas fa-money-bill-wave"></i> Wkłady finansowe (opcjonalnie)
                         </h3>
                         <div class="alert alert-info" style="margin-bottom: 15px;">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Ważne:</strong> Dodanie wkładów finansowych jest <u>opcjonalne</u>. Jeśli dodasz wkłady tutaj, będą automatycznie naliczane do finansów podczas rejestracji sprzedaży. Jeśli nie dodasz wkładów, będziesz musiał je dodać ręcznie później w sekcji "Finansów".
+                            <strong>Ważne:</strong> Dodanie wkładów finansowych jest <u>opcjonalne</u>. Jeśli dodasz
+                            wkłady tutaj, będą automatycznie naliczane do finansów podczas rejestracji sprzedaży. Jeśli
+                            nie dodasz wkładów, będziesz musiał je dodać ręcznie później w sekcji "Finansów".
                         </div>
                         <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">
-                            Dodaj osoby które inwestowały pieniądze w ten produkt. Wkłady będą automatycznie dzielić zysk ze sprzedaży.
+                            Dodaj osoby które inwestowały pieniądze w ten produkt. Wkłady będą automatycznie dzielić
+                            zysk ze sprzedaży.
                         </p>
 
                         <?php if (!empty($team_members)): ?>
-                        <div id="contributions-container">
-                            <!-- Dynamically added contribution fields go here -->
-                        </div>
-                        
-                        <button type="button" id="add-contribution-btn" class="btn btn-secondary" style="margin-top: 10px;">
-                            <i class="fas fa-plus"></i> Dodaj wkład
-                        </button>
+                            <div id="contributions-container">
+                                <!-- Dynamically added contribution fields go here -->
+                            </div>
+
+                            <button type="button" id="add-contribution-btn" class="btn btn-secondary"
+                                style="margin-top: 10px;">
+                                <i class="fas fa-plus"></i> Dodaj wkład
+                            </button>
                         <?php else: ?>
-                        <div style="padding: 15px; background: white; border-radius: 8px; color: #999; text-align: center;">
-                            <i class="fas fa-info-circle"></i> Brak członków zespołu - dodaj ich w sekcji <strong>Finanse → Zespół</strong>
-                        </div>
+                            <div
+                                style="padding: 15px; background: white; border-radius: 8px; color: #999; text-align: center;">
+                                <i class="fas fa-info-circle"></i> Brak członków zespołu - dodaj ich w sekcji
+                                <strong>Finanse → Zespół</strong>
+                            </div>
                         <?php endif; ?>
                     </div>
                     <div class="form-actions">
@@ -344,14 +351,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const teamMembers = <?php echo json_encode($team_members); ?>;
         let contributionCount = 0;
 
-        document.getElementById('add-contribution-btn')?.addEventListener('click', function() {
+        document.getElementById('add-contribution-btn')?.addEventListener('click', function () {
             addContributionField();
         });
 
         function addContributionField() {
             const container = document.getElementById('contributions-container');
             const id = contributionCount++;
-            
+
             const html = `
                 <div class="contribution-item" id="contribution-${id}">
                     <div class="form-group">
@@ -374,7 +381,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 </div>
             `;
-            
+
             container.insertAdjacentHTML('beforeend', html);
         }
     </script>

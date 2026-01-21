@@ -19,7 +19,7 @@ if (isset($_GET['id'])) {
         header('Location: products.php');
         exit;
     }
-    
+
     // Get team members for contributions
     $team_members = $pdo->query("SELECT * FROM team_members WHERE is_active = 1 ORDER BY name")->fetchAll();
 }
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_contribution'])) 
         $team_member_id = intval($_POST['team_member_id'] ?? 0);
         $amount = floatval($_POST['contribution_amount'] ?? 0);
         $description = trim($_POST['contribution_description'] ?? '');
-        
+
         if ($team_member_id > 0 && $amount > 0) {
             $stmt = $pdo->prepare("INSERT INTO financial_contributions (product_id, team_member_id, amount, description, contributed_at) VALUES (?, ?, ?, ?, NOW())");
             $stmt->execute([$product['id'], $team_member_id, $amount, $description]);
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['add_contribution']))
 
 <body>
     <div class="admin-wrapper">
-       <?php include 'includes/sidebar.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
 
         <main class="main-content">
             <header class="content-header">
@@ -260,94 +260,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['add_contribution']))
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="is_visible" <?php echo $product['is_visible'] ? 'checked' : ''; ?>>
-                            <span>Widoczny dla klientów</span>
+                            <span>Widoczny dla klientów *Jeśli odznaczysz, produkt trafia do magazynu</span>
                         </label>
                     </div>
                     <!-- Sekcja wkładów finansowych -->
-                    <div style="background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                    <div
+                        style="background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 20px 0;">
                         <h3 style="margin-top: 0; margin-bottom: 15px; color: #2c3e50;">
                             <i class="fas fa-money-bill-wave"></i> Wkłady finansowe (opcjonalnie)
                         </h3>
                         <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">
-                            Dodaj osoby które inwestowały pieniądze w ten produkt. Wkłady będą automatycznie dzielić zysk ze sprzedaży.
+                            Dodaj osoby które inwestowały pieniądze w ten produkt. Wkłady będą automatycznie dzielić
+                            zysk ze sprzedaży.
                         </p>
 
                         <!-- Forma dodania wkładu -->
                         <?php if (!empty($team_members)): ?>
-                        <div class="form-row" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                            <div class="form-group">
-                                <label for="team_member_id">Członek zespołu</label>
-                                <select id="team_member_id" name="team_member_id">
-                                    <option value="">-- Wybierz osobę --</option>
-                                    <?php foreach ($team_members as $member): ?>
-                                        <option value="<?php echo $member['id']; ?>"><?php echo htmlspecialchars($member['name']); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                            <div class="form-row"
+                                style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                <div class="form-group">
+                                    <label for="team_member_id">Członek zespołu</label>
+                                    <select id="team_member_id" name="team_member_id">
+                                        <option value="">-- Wybierz osobę --</option>
+                                        <?php foreach ($team_members as $member): ?>
+                                            <option value="<?php echo $member['id']; ?>">
+                                                <?php echo htmlspecialchars($member['name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contribution_amount">Kwota (zł)</label>
+                                    <input type="number" id="contribution_amount" name="contribution_amount" step="0.01"
+                                        min="0" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contribution_description">Opis (np. CPU, RAM, SSD)</label>
+                                    <input type="text" id="contribution_description" name="contribution_description"
+                                        placeholder="Komponenty...">
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: flex-end;">
+                                    <button type="submit" name="add_contribution" value="1" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Dodaj
+                                    </button>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="contribution_amount">Kwota (zł)</label>
-                                <input type="number" id="contribution_amount" name="contribution_amount" step="0.01" min="0" placeholder="0.00">
-                            </div>
-                            <div class="form-group">
-                                <label for="contribution_description">Opis (np. CPU, RAM, SSD)</label>
-                                <input type="text" id="contribution_description" name="contribution_description" placeholder="Komponenty...">
-                            </div>
-                            <div class="form-group" style="display: flex; align-items: flex-end;">
-                                <button type="submit" name="add_contribution" value="1" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Dodaj
-                                </button>
-                            </div>
-                        </div>
                         <?php endif; ?>
 
                         <!-- Lista wkładów -->
                         <?php if (!empty($contributions)): ?>
-                        <div class="contributions-table">
-                            <table class="data-table" style="margin: 0;">
-                                <thead>
-                                    <tr>
-                                        <th>Osoba</th>
-                                        <th>Kwota</th>
-                                        <th>Procent</th>
-                                        <th>Opis</th>
-                                        <th>Akcja</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                    $total_contribs = array_sum(array_column($contributions, 'amount'));
-                                    foreach ($contributions as $contrib): 
-                                        $percent = ($contrib['amount'] / $total_contribs) * 100;
-                                    ?>
+                            <div class="contributions-table">
+                                <table class="data-table" style="margin: 0;">
+                                    <thead>
                                         <tr>
-                                            <td><strong><?php echo htmlspecialchars($contrib['name']); ?></strong></td>
-                                            <td><?php echo number_format($contrib['amount'], 2); ?> zł</td>
-                                            <td><?php echo number_format($percent, 1); ?>%</td>
-                                            <td style="color: #666; font-size: 0.9rem;"><?php echo htmlspecialchars($contrib['description'] ?? '-'); ?></td>
-                                            <td>
-                                                <a href="?id=<?php echo $product['id']; ?>&delete_contribution=<?php echo $contrib['id']; ?>" onclick="return confirm('Usunąć wkład?')" class="btn-icon delete" title="Usuń">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </td>
+                                            <th>Osoba</th>
+                                            <th>Kwota</th>
+                                            <th>Procent</th>
+                                            <th>Opis</th>
+                                            <th>Akcja</th>
                                         </tr>
-                                    <?php endforeach; ?>
-                                    <tr style="background: #f0f0f0; font-weight: 600;">
-                                        <td colspan="1">RAZEM:</td>
-                                        <td><?php echo number_format($total_contribs, 2); ?> zł</td>
-                                        <td>100%</td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-left: 4px solid #667eea; border-radius: 4px;">
-                            <small><i class="fas fa-info-circle"></i> <strong>Razem wkładów:</strong> <?php echo number_format($total_contribs, 2); ?> zł - Ta kwota będzie kostów przy sprzedaży w systemie finansów</small>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $total_contribs = array_sum(array_column($contributions, 'amount'));
+                                        foreach ($contributions as $contrib):
+                                            $percent = ($contrib['amount'] / $total_contribs) * 100;
+                                            ?>
+                                            <tr>
+                                                <td><strong><?php echo htmlspecialchars($contrib['name']); ?></strong></td>
+                                                <td><?php echo number_format($contrib['amount'], 2); ?> zł</td>
+                                                <td><?php echo number_format($percent, 1); ?>%</td>
+                                                <td style="color: #666; font-size: 0.9rem;">
+                                                    <?php echo htmlspecialchars($contrib['description'] ?? '-'); ?>
+                                                </td>
+                                                <td>
+                                                    <a href="?id=<?php echo $product['id']; ?>&delete_contribution=<?php echo $contrib['id']; ?>"
+                                                        onclick="return confirm('Usunąć wkład?')" class="btn-icon delete"
+                                                        title="Usuń">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                        <tr style="background: #f0f0f0; font-weight: 600;">
+                                            <td colspan="1">RAZEM:</td>
+                                            <td><?php echo number_format($total_contribs, 2); ?> zł</td>
+                                            <td>100%</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div
+                                style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-left: 4px solid #667eea; border-radius: 4px;">
+                                <small><i class="fas fa-info-circle"></i> <strong>Razem wkładów:</strong>
+                                    <?php echo number_format($total_contribs, 2); ?> zł - Ta kwota będzie kostów przy
+                                    sprzedaży w systemie finansów</small>
+                            </div>
                         <?php else: ?>
-                        <div style="padding: 15px; background: white; border-radius: 8px; color: #999; text-align: center;">
-                            <i class="fas fa-inbox"></i> Brak wkładów dla tego produktu
-                        </div>
+                            <div
+                                style="padding: 15px; background: white; border-radius: 8px; color: #999; text-align: center;">
+                                <i class="fas fa-inbox"></i> Brak wkładów dla tego produktu
+                            </div>
                         <?php endif; ?>
                     </div>
                     <div class="form-actions">
