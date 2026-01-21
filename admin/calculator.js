@@ -4,10 +4,10 @@ let itemCounter = 0;
 
 // Przełączanie między nowym a istniejącym klientem
 document.querySelectorAll('.btn-toggle').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
         document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        
+
         const type = this.dataset.type;
         if (type === 'new') {
             document.getElementById('newClientForm').style.display = 'block';
@@ -20,19 +20,19 @@ document.querySelectorAll('.btn-toggle').forEach(btn => {
 });
 
 // Checkbox firma
-document.getElementById('isCompany').addEventListener('change', function() {
+document.getElementById('isCompany').addEventListener('change', function () {
     document.getElementById('companyFields').style.display = this.checked ? 'block' : 'none';
 });
 
 // Wybór istniejącego klienta
-document.getElementById('selectClient').addEventListener('change', function() {
+document.getElementById('selectClient').addEventListener('change', function () {
     const option = this.options[this.selectedIndex];
     if (option.value) {
         document.getElementById('clientName').value = option.dataset.name || '';
         document.getElementById('clientEmail').value = option.dataset.email || '';
         document.getElementById('clientPhone').value = option.dataset.phone || '';
         document.getElementById('clientAddress').value = option.dataset.address || '';
-        
+
         if (option.dataset.company) {
             document.getElementById('isCompany').checked = true;
             document.getElementById('companyFields').style.display = 'block';
@@ -44,12 +44,12 @@ document.getElementById('selectClient').addEventListener('change', function() {
 
 // Przełączanie tabów
 document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
+    tab.addEventListener('click', function () {
         const tabName = this.dataset.tab;
-        
+
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
+
         this.classList.add('active');
         document.getElementById(tabName + 'Tab').classList.add('active');
     });
@@ -59,12 +59,12 @@ document.querySelectorAll('.tab').forEach(tab => {
 function addServiceItem() {
     const select = document.getElementById('selectService');
     const qty = parseFloat(document.getElementById('serviceQty').value) || 1;
-    
+
     if (!select.value) {
         alert('Wybierz usługę');
         return;
     }
-    
+
     const option = select.options[select.selectedIndex];
     const item = {
         id: ++itemCounter,
@@ -75,32 +75,33 @@ function addServiceItem() {
         unitPrice: parseFloat(option.dataset.price),
         total: qty * parseFloat(option.dataset.price)
     };
-    
+
     items.push(item);
     renderItems();
-    
+
     select.value = '';
     document.getElementById('serviceQty').value = 1;
 }
 
 // Dodaj produkt
-function addProductItem() {
-    const select = document.getElementById('selectProduct');
-    const qty = parseFloat(document.getElementById('productQty').value) || 1;
-    
+function addProductItem(selectId = 'selectProduct', qtyId = 'productQty') {
+    const select = document.getElementById(selectId);
+    const qtyInput = document.getElementById(qtyId);
+    const qty = parseFloat(qtyInput.value) || 1;
+
     if (!select.value) {
         alert('Wybierz produkt');
         return;
     }
-    
+
     const option = select.options[select.selectedIndex];
     const stock = parseInt(option.dataset.stock);
-    
+
     if (qty > stock) {
         alert(`Brak wystarczającej ilości w magazynie! Dostępne: ${stock} szt.`);
         return;
     }
-    
+
     const item = {
         id: ++itemCounter,
         type: 'produkt',
@@ -110,10 +111,10 @@ function addProductItem() {
         unitPrice: parseFloat(option.dataset.price),
         total: qty * parseFloat(option.dataset.price)
     };
-    
+
     items.push(item);
     renderItems();
-    
+
     select.value = '';
     document.getElementById('productQty').value = 1;
 }
@@ -123,17 +124,17 @@ function addCustomItem() {
     const name = document.getElementById('customName').value.trim();
     const price = parseFloat(document.getElementById('customPrice').value) || 0;
     const qty = parseFloat(document.getElementById('customQty').value) || 1;
-    
+
     if (!name) {
         alert('Podaj nazwę pozycji');
         return;
     }
-    
+
     if (price <= 0) {
         alert('Podaj poprawną cenę');
         return;
     }
-    
+
     const item = {
         id: ++itemCounter,
         type: 'inne',
@@ -142,10 +143,10 @@ function addCustomItem() {
         unitPrice: price,
         total: qty * price
     };
-    
+
     items.push(item);
     renderItems();
-    
+
     document.getElementById('customName').value = '';
     document.getElementById('customPrice').value = '';
     document.getElementById('customQty').value = 1;
@@ -160,7 +161,7 @@ function removeItem(id) {
 // Renderuj listę pozycji
 function renderItems() {
     const container = document.getElementById('itemsList');
-    
+
     if (items.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -171,7 +172,7 @@ function renderItems() {
         updateSummary();
         return;
     }
-    
+
     let html = '';
     items.forEach(item => {
         html += `
@@ -192,7 +193,7 @@ function renderItems() {
             </div>
         `;
     });
-    
+
     container.innerHTML = html;
     updateSummary();
 }
@@ -203,7 +204,7 @@ function updateSummary() {
     const taxRate = 0.23;
     const netto = subtotal / (1 + taxRate);
     const tax = subtotal - netto;
-    
+
     document.getElementById('subtotalAmount').textContent = netto.toFixed(2) + ' zł';
     document.getElementById('taxAmount').textContent = tax.toFixed(2) + ' zł';
     document.getElementById('totalAmount').textContent = subtotal.toFixed(2) + ' zł';
@@ -213,17 +214,17 @@ function updateSummary() {
 async function saveInvoice() {
     // Walidacja
     const clientName = document.getElementById('clientName').value.trim();
-    
+
     if (!clientName) {
         alert('Podaj dane klienta');
         return;
     }
-    
+
     if (items.length === 0) {
         alert('Dodaj przynajmniej jedną pozycję');
         return;
     }
-    
+
     // Przygotuj dane
     const data = {
         client: {
@@ -239,7 +240,7 @@ async function saveInvoice() {
         notes: document.getElementById('notes').value.trim(),
         items: items
     };
-    
+
     // Zapisz
     try {
         const response = await fetch('save_invoice.php', {
@@ -249,17 +250,17 @@ async function saveInvoice() {
             },
             body: JSON.stringify(data)
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert('Dokument został zapisany pomyślnie!');
-            
+
             // Otwórz PDF
             if (result.pdfUrl) {
                 window.open(result.pdfUrl, '_blank');
             }
-            
+
             // Przekieruj do listy faktur
             window.location.href = 'invoices.php';
         } else {
@@ -276,10 +277,10 @@ function clearCalculator() {
     if (!confirm('Czy na pewno chcesz wyczyścić kalkulator?')) {
         return;
     }
-    
+
     items = [];
     itemCounter = 0;
-    
+
     document.getElementById('clientName').value = '';
     document.getElementById('clientEmail').value = '';
     document.getElementById('clientPhone').value = '';
@@ -289,8 +290,8 @@ function clearCalculator() {
     document.getElementById('isCompany').checked = false;
     document.getElementById('companyFields').style.display = 'none';
     document.getElementById('notes').value = '';
-    
+
     document.getElementById('selectClient').value = '';
-    
+
     renderItems();
 }

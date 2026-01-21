@@ -437,6 +437,7 @@ CREATE TABLE `financial_contributions` (
   `team_member_id` int(11) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   `description` text DEFAULT NULL,
+  `is_transferred` tinyint(1) DEFAULT 0,
   `contributed_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -69,39 +69,39 @@ if ($action === 'add_sale' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $sale_price = floatval($_POST['sale_price']);
         $sale_cost = floatval($_POST['sale_cost']);
         $profit = $sale_price - $sale_cost;
-        
+
         $contribs = $pdo->prepare("SELECT team_member_id, amount FROM financial_contributions WHERE product_id = ?");
         $contribs->execute([$product_id]);
         $contributions = $contribs->fetchAll();
-        
+
         $total_contribution = array_sum(array_column($contributions, 'amount'));
-        
+
         if ($total_contribution <= 0) {
             throw new Exception("Brak wkładów dla tego produktu!");
         }
-        
+
         $pdo->beginTransaction();
-        
+
         // Link do faktury jeśli została przesłana
         $invoice_id = $_POST['invoice_id'] ?? null;
-        
+
         $stmt = $pdo->prepare("INSERT INTO product_sales (product_id, sale_price, sale_cost, profit, invoice_id, notes, sold_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
         $stmt->execute([$product_id, $sale_price, $sale_cost, $profit, $invoice_id, $_POST['notes'] ?? null]);
         $sale_id = $pdo->lastInsertId();
-        
+
         foreach ($contributions as $contrib) {
             $percentage = ($contrib['amount'] / $total_contribution) * 100;
             $profit_share = ($percentage / 100) * $profit;
-            
+
             $stmt = $pdo->prepare("INSERT INTO profit_distributions (sale_id, team_member_id, contribution_percentage, profit_share, distributed_at) VALUES (?, ?, ?, ?, NOW())");
             $stmt->execute([$sale_id, $contrib['team_member_id'], $percentage, $profit_share]);
         }
-        
+
         // Jeśli jest faktura, aktualizuj invoice_items aby miał product_id
         if ($invoice_id) {
             $pdo->prepare("UPDATE invoice_items SET product_id = ? WHERE invoice_id = ? AND product_id IS NULL LIMIT 1")->execute([$product_id, $invoice_id]);
         }
-        
+
         $pdo->commit();
         header("Location: ?action=products&success=sale_added");
         exit;
@@ -134,24 +134,24 @@ if ($action === 'add_service_exec' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $service_id = $_POST['service_id'];
         $service_price = floatval($_POST['service_price']);
         $team_ids = $_POST['team_members'] ?? [];
-        
+
         if (count($team_ids) <= 0) {
             throw new Exception("Musisz wybrać co najmniej jednego członka zespołu!");
         }
-        
+
         $share_per_member = $service_price / count($team_ids);
-        
+
         $pdo->beginTransaction();
-        
+
         $stmt = $pdo->prepare("INSERT INTO service_executions (service_id, invoice_id, service_price, executed_at, notes) VALUES (?, ?, ?, NOW(), ?)");
         $stmt->execute([$service_id, $_POST['invoice_id'] ?? null, $service_price, $_POST['notes'] ?? null]);
         $exec_id = $pdo->lastInsertId();
-        
+
         foreach ($team_ids as $member_id) {
             $stmt = $pdo->prepare("INSERT INTO service_team (execution_id, team_member_id, payment_share, assigned_at) VALUES (?, ?, ?, NOW())");
             $stmt->execute([$exec_id, $member_id, $share_per_member]);
         }
-        
+
         $pdo->commit();
         header("Location: ?action=services&success=service_added");
         exit;
@@ -203,14 +203,16 @@ $team_summary = $pdo->query("
     SELECT 
         tm.id, 
         tm.name,
-        COALESCE(SUM(DISTINCT CASE WHEN pd.profit_share IS NOT NULL THEN pd.profit_share ELSE 0 END), 0) as profit_share,
-        COALESCE(SUM(st.payment_share), 0) as service_payment
+        (SELECT COALESCE(SUM(pd.profit_share), 0) 
+         FROM profit_distributions pd 
+         WHERE pd.team_member_id = tm.id) as profit_share,
+        (SELECT COALESCE(SUM(st.payment_share), 0) 
+         FROM service_team st 
+         WHERE st.team_member_id = tm.id) as service_payment
     FROM team_members tm
-    LEFT JOIN profit_distributions pd ON tm.id = pd.team_member_id
-    LEFT JOIN service_team st ON tm.id = st.team_member_id
     WHERE tm.is_active = 1
-    GROUP BY tm.id, tm.name
-    ORDER BY (COALESCE(SUM(DISTINCT CASE WHEN pd.profit_share IS NOT NULL THEN pd.profit_share ELSE 0 END), 0) + COALESCE(SUM(st.payment_share), 0)) DESC
+    ORDER BY ((SELECT COALESCE(SUM(pd.profit_share), 0) FROM profit_distributions pd WHERE pd.team_member_id = tm.id) + 
+              (SELECT COALESCE(SUM(st.payment_share), 0) FROM service_team st WHERE st.team_member_id = tm.id)) DESC
 ")->fetchAll();
 
 // Financial Summary: Investments + Earnings
@@ -218,17 +220,22 @@ $financial_summary = $pdo->query("
     SELECT 
         tm.id,
         tm.name,
-        COALESCE(SUM(fc.amount), 0) as total_invested,
-        COALESCE(SUM(DISTINCT CASE WHEN pd.profit_share IS NOT NULL THEN pd.profit_share ELSE 0 END), 0) as total_earned_products,
-        COALESCE(SUM(st.payment_share), 0) as total_earned_services,
-        (COALESCE(SUM(DISTINCT CASE WHEN pd.profit_share IS NOT NULL THEN pd.profit_share ELSE 0 END), 0) + COALESCE(SUM(st.payment_share), 0)) as total_earned,
-        (COALESCE(SUM(fc.amount), 0) + COALESCE(SUM(DISTINCT CASE WHEN pd.profit_share IS NOT NULL THEN pd.profit_share ELSE 0 END), 0)) as total_sum
+        (SELECT COALESCE(SUM(fc.amount), 0) 
+         FROM financial_contributions fc 
+         WHERE fc.team_member_id = tm.id AND fc.is_transferred = 0) as total_invested,
+        (SELECT COALESCE(SUM(pd.profit_share), 0) 
+         FROM profit_distributions pd 
+         WHERE pd.team_member_id = tm.id) as total_earned_products,
+        (SELECT COALESCE(SUM(st.payment_share), 0) 
+         FROM service_team st 
+         WHERE st.team_member_id = tm.id) as total_earned_services,
+        ((SELECT COALESCE(SUM(pd.profit_share), 0) FROM profit_distributions pd WHERE pd.team_member_id = tm.id) + 
+         (SELECT COALESCE(SUM(st.payment_share), 0) FROM service_team st WHERE st.team_member_id = tm.id)) as total_earned,
+        ((SELECT COALESCE(SUM(fc.amount), 0) FROM financial_contributions fc WHERE fc.team_member_id = tm.id AND fc.is_transferred = 0) + 
+         (SELECT COALESCE(SUM(pd.profit_share), 0) FROM profit_distributions pd WHERE pd.team_member_id = tm.id) + 
+         (SELECT COALESCE(SUM(st.payment_share), 0) FROM service_team st WHERE st.team_member_id = tm.id)) as total_sum
     FROM team_members tm
-    LEFT JOIN financial_contributions fc ON tm.id = fc.team_member_id
-    LEFT JOIN profit_distributions pd ON tm.id = pd.team_member_id
-    LEFT JOIN service_team st ON tm.id = st.team_member_id
     WHERE tm.is_active = 1
-    GROUP BY tm.id, tm.name
     ORDER BY tm.name ASC
 ")->fetchAll();
 
@@ -382,7 +389,9 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                                 <td><?php echo htmlspecialchars($sale['product_name']); ?></td>
                                                 <td><?php echo number_format($sale['sale_price'], 2); ?> zł</td>
                                                 <td><?php echo number_format($sale['sale_cost'], 2); ?> zł</td>
-                                                <td><span style="color: #28a745; font-weight: bold;">+<?php echo number_format($sale['profit'], 2); ?> zł</span></td>
+                                                <td><span
+                                                        style="color: #28a745; font-weight: bold;">+<?php echo number_format($sale['profit'], 2); ?>
+                                                        zł</span></td>
                                                 <td><?php echo date('d.m.Y', strtotime($sale['sold_at'])); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -413,12 +422,12 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach (array_slice($service_execs, 0, 5) as $exec): 
+                                        <?php foreach (array_slice($service_execs, 0, 5) as $exec):
                                             $team_count_exec = $pdo->prepare("SELECT COUNT(*) as cnt FROM service_team WHERE execution_id = ?");
                                             $team_count_exec->execute([$exec['id']]);
                                             $cnt = $team_count_exec->fetch()['cnt'];
                                             $per_person = $cnt > 0 ? $exec['service_price'] / $cnt : 0;
-                                        ?>
+                                            ?>
                                             <tr>
                                                 <td><?php echo htmlspecialchars($exec['service_name']); ?></td>
                                                 <td><?php echo number_format($exec['service_price'], 2); ?> zł</td>
@@ -433,7 +442,7 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                     </div>
                 </div>
 
-            <!-- Team Management -->
+                <!-- Team Management -->
             <?php elseif ($action === 'team'): ?>
                 <div class="content-section">
                     <div class="section-header">
@@ -494,7 +503,9 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                             <td><?php echo htmlspecialchars($member['phone'] ?? '-'); ?></td>
                                             <td><?php echo htmlspecialchars($member['role'] ?? '-'); ?></td>
                                             <td>
-                                                <a href="?action=delete_member&id=<?php echo $member['id']; ?>" onclick="return confirm('Czy na pewno chcesz usunąć tego członka?')" class="btn-icon delete" title="Usuń">
+                                                <a href="?action=delete_member&id=<?php echo $member['id']; ?>"
+                                                    onclick="return confirm('Czy na pewno chcesz usunąć tego członka?')"
+                                                    class="btn-icon delete" title="Usuń">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -506,7 +517,7 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                     <?php endif; ?>
                 </div>
 
-            <!-- Products & Contributions -->
+                <!-- Products & Contributions -->
             <?php elseif ($action === 'products'): ?>
                 <div class="dashboard-grid">
                     <div class="stat-card">
@@ -535,7 +546,8 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                         </div>
                         <div class="stat-content">
                             <h3>Całkowity zysk</h3>
-                            <p class="stat-number"><?php echo number_format(array_sum(array_column($sales, 'profit')), 2); ?> zł</p>
+                            <p class="stat-number">
+                                <?php echo number_format(array_sum(array_column($sales, 'profit')), 2); ?> zł</p>
                         </div>
                     </div>
                 </div>
@@ -550,8 +562,12 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                             <select id="product_id" name="product_id" required onchange="updateProductInfo()">
                                 <option value="">-- Wybierz produkt --</option>
                                 <?php foreach ($products as $prod): ?>
-                                    <option value="<?php echo $prod['id']; ?>" data-price="<?php echo $prod['price']; ?>" data-stock="<?php echo $prod['stock']; ?>" data-category="<?php echo htmlspecialchars($prod['category'] ?? ''); ?>">
-                                        <?php echo htmlspecialchars($prod['name']); ?> (<?php echo number_format($prod['price'], 2); ?> zł - Stan: <?php echo $prod['stock']; ?> szt.)
+                                    <option value="<?php echo $prod['id']; ?>" data-price="<?php echo $prod['price']; ?>"
+                                        data-stock="<?php echo $prod['stock']; ?>"
+                                        data-category="<?php echo htmlspecialchars($prod['category'] ?? ''); ?>">
+                                        <?php echo htmlspecialchars($prod['name']); ?>
+                                        (<?php echo number_format($prod['price'], 2); ?> zł - Stan:
+                                        <?php echo $prod['stock']; ?> szt.)
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -562,7 +578,8 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                             <select id="team_member_id" name="team_member_id" required>
                                 <option value="">-- Wybierz osobę --</option>
                                 <?php foreach ($team_members as $member): ?>
-                                    <option value="<?php echo $member['id']; ?>"><?php echo htmlspecialchars($member['name']); ?></option>
+                                    <option value="<?php echo $member['id']; ?>">
+                                        <?php echo htmlspecialchars($member['name']); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -572,7 +589,8 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                         </div>
                         <div class="form-group">
                             <label for="description">Opis (component, części itd.)</label>
-                            <input type="text" id="description" name="description" placeholder="np. Komponenty CPU, RAM, SSD">
+                            <input type="text" id="description" name="description"
+                                placeholder="np. Komponenty CPU, RAM, SSD">
                         </div>
                         <div style="grid-column: 1 / -1;">
                             <button type="submit" class="btn btn-primary">
@@ -588,35 +606,41 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                     </div>
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Ważne:</strong> Aby zarejestrować sprzedaż produktu, musisz najpierw dodać wkłady finansowe dla tego produktu. Zysk będzie automatycznie podzielony proporcjonalnie do wkładów.
+                        <strong>Ważne:</strong> Aby zarejestrować sprzedaż produktu, musisz najpierw dodać wkłady finansowe
+                        dla tego produktu. Zysk będzie automatycznie podzielony proporcjonalnie do wkładów.
                     </div>
                     <form method="POST" action="?action=add_sale" class="form-grid">
                         <div class="form-group">
                             <label for="sale_product_id">Produkt *</label>
                             <select id="sale_product_id" name="product_id" required onchange="updateSaleProductInfo()">
                                 <option value="">-- Wybierz produkt --</option>
-                                <?php foreach ($products as $prod): 
+                                <?php foreach ($products as $prod):
                                     $contribs_sum = array_sum(array_column($product_contributions[$prod['id']] ?? [], 'amount'));
                                     if ($contribs_sum > 0):
-                                ?>
-                                    <option value="<?php echo $prod['id']; ?>" data-contribs="<?php echo number_format($contribs_sum, 2); ?>">
-                                        <?php echo htmlspecialchars($prod['name']); ?> - Wkłady: <?php echo number_format($contribs_sum, 2); ?> zł
-                                    </option>
-                                <?php endif; endforeach; ?>
+                                        ?>
+                                        <option value="<?php echo $prod['id']; ?>"
+                                            data-contribs="<?php echo number_format($contribs_sum, 2); ?>">
+                                            <?php echo htmlspecialchars($prod['name']); ?> - Wkłady:
+                                            <?php echo number_format($contribs_sum, 2); ?> zł
+                                        </option>
+                                    <?php endif; endforeach; ?>
                             </select>
                             <small id="sale-product-info" style="color: #999; margin-top: 5px;"></small>
                         </div>
                         <div class="form-group">
                             <label for="sale_cost">Koszt (suma wkładów) *</label>
-                            <input type="number" id="sale_cost" name="sale_cost" step="0.01" min="0" required placeholder="0.00">
+                            <input type="number" id="sale_cost" name="sale_cost" step="0.01" min="0" required
+                                placeholder="0.00">
                         </div>
                         <div class="form-group">
                             <label for="sale_price">Cena sprzedaży *</label>
-                            <input type="number" id="sale_price" name="sale_price" step="0.01" min="0" required placeholder="0.00" onchange="updateProfit()">
+                            <input type="number" id="sale_price" name="sale_price" step="0.01" min="0" required
+                                placeholder="0.00" onchange="updateProfit()">
                         </div>
                         <div class="form-group">
                             <label for="profit_display">Zysk netto</label>
-                            <input type="text" id="profit_display" disabled placeholder="0.00 zł" style="background: #f8f9fa;">
+                            <input type="text" id="profit_display" disabled placeholder="0.00 zł"
+                                style="background: #f8f9fa;">
                         </div>
                         <div class="form-group">
                             <label for="sale_invoice_id">Faktura (z listy)</label>
@@ -624,14 +648,17 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                 <option value="">-- Bez faktury --</option>
                                 <?php foreach ($invoices as $inv): ?>
                                     <option value="<?php echo $inv['id']; ?>">
-                                        <?php echo htmlspecialchars($inv['invoice_number']); ?> - <?php echo htmlspecialchars($inv['client_name']); ?> (<?php echo number_format($inv['total'], 2); ?> zł)
+                                        <?php echo htmlspecialchars($inv['invoice_number']); ?> -
+                                        <?php echo htmlspecialchars($inv['client_name']); ?>
+                                        (<?php echo number_format($inv['total'], 2); ?> zł)
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div style="grid-column: 1 / -1;">
                             <label for="sale_notes">Notatka</label>
-                            <textarea id="sale_notes" name="notes" rows="3" placeholder="Uwagi dotyczące sprzedaży (gdzie sprzedano, do kogo, etc.)"></textarea>
+                            <textarea id="sale_notes" name="notes" rows="3"
+                                placeholder="Uwagi dotyczące sprzedaży (gdzie sprzedano, do kogo, etc.)"></textarea>
                         </div>
                         <div style="grid-column: 1 / -1;">
                             <button type="submit" class="btn btn-primary">
@@ -649,20 +676,22 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                         <div class="empty-state">
                             <i class="fas fa-box"></i>
                             <h3>Brak produktów</h3>
-                            <p>Dodaj produkty <a href="products.php" style="color: #ff6b35; font-weight: 600;">w sekcji Produkty</a></p>
+                            <p>Dodaj produkty <a href="products.php" style="color: #ff6b35; font-weight: 600;">w sekcji
+                                    Produkty</a></p>
                         </div>
                     <?php else: ?>
                         <div class="products-contributions-grid">
-                            <?php foreach ($products as $product): 
+                            <?php foreach ($products as $product):
                                 $contribs = $product_contributions[$product['id']] ?? [];
                                 $total_contribs = array_sum(array_column($contribs, 'amount'));
-                            ?>
+                                ?>
                                 <div class="product-contribution-card">
                                     <div class="product-header">
                                         <div class="product-meta">
                                             <h3><?php echo htmlspecialchars($product['name']); ?></h3>
                                             <?php if ($product['category']): ?>
-                                                <span class="product-category"><?php echo htmlspecialchars($product['category']); ?></span>
+                                                <span
+                                                    class="product-category"><?php echo htmlspecialchars($product['category']); ?></span>
                                             <?php endif; ?>
                                         </div>
                                         <div class="product-price">
@@ -670,23 +699,27 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                             <span class="stock-info">Stan: <?php echo $product['stock']; ?> szt.</span>
                                         </div>
                                     </div>
-                                    
+
                                     <?php if (!empty($contribs)): ?>
                                         <div class="contributions-list">
                                             <div class="contributions-header">
                                                 <strong>Wkłady (<?php echo count($contribs); ?>)</strong>
                                                 <span class="total-contribs"><?php echo number_format($total_contribs, 2); ?> zł</span>
                                             </div>
-                                            <?php foreach ($contribs as $contrib): 
+                                            <?php foreach ($contribs as $contrib):
                                                 $percent = ($contrib['amount'] / $total_contribs) * 100;
-                                            ?>
+                                                ?>
                                                 <div class="contribution-item">
                                                     <div class="contrib-info">
                                                         <span class="member-name"><?php echo htmlspecialchars($contrib['name']); ?></span>
-                                                        <span class="contrib-amount"><?php echo number_format($contrib['amount'], 2); ?> zł (<?php echo number_format($percent, 1); ?>%)</span>
+                                                        <span class="contrib-amount"><?php echo number_format($contrib['amount'], 2); ?> zł
+                                                            (<?php echo number_format($percent, 1); ?>%)</span>
                                                     </div>
-                                                    <div class="progress-bar" style="width: <?php echo $percent; ?>%; background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);"></div>
-                                                    <a href="?action=delete_contribution&id=<?php echo $contrib['contrib_id']; ?>" onclick="return confirm('Usuń?')" class="contrib-delete">
+                                                    <div class="progress-bar"
+                                                        style="width: <?php echo $percent; ?>%; background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);">
+                                                    </div>
+                                                    <a href="?action=delete_contribution&id=<?php echo $contrib['contrib_id']; ?>"
+                                                        onclick="return confirm('Usuń?')" class="contrib-delete">
                                                         <i class="fas fa-trash"></i>
                                                     </a>
                                                 </div>
@@ -733,11 +766,14 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                             <td><strong><?php echo htmlspecialchars($sale['product_name']); ?></strong></td>
                                             <td><?php echo number_format($sale['sale_cost'], 2); ?> zł</td>
                                             <td><?php echo number_format($sale['sale_price'], 2); ?> zł</td>
-                                            <td style="color: #28a745; font-weight: bold;">+<?php echo number_format($sale['profit'], 2); ?> zł</td>
+                                            <td style="color: #28a745; font-weight: bold;">
+                                                +<?php echo number_format($sale['profit'], 2); ?> zł</td>
                                             <td>
                                                 <?php if ($sale['invoice_id']): ?>
-                                                    <a href="view_invoice.php?id=<?php echo $sale['invoice_id']; ?>" style="color: #ff6b35; text-decoration: none;">
-                                                        <i class="fas fa-file-invoice"></i> <?php echo htmlspecialchars($sale['invoice_number'] ?? ''); ?>
+                                                    <a href="view_invoice.php?id=<?php echo $sale['invoice_id']; ?>"
+                                                        style="color: #ff6b35; text-decoration: none;">
+                                                        <i class="fas fa-file-invoice"></i>
+                                                        <?php echo htmlspecialchars($sale['invoice_number'] ?? ''); ?>
                                                     </a>
                                                 <?php else: ?>
                                                     <span style="color: #999;">Brak</span>
@@ -746,7 +782,9 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                             <td><?php echo htmlspecialchars($sale['client_name'] ?? '-'); ?></td>
                                             <td><?php echo date('d.m.Y H:i', strtotime($sale['sold_at'])); ?></td>
                                             <td>
-                                                <a href="?action=delete_sale&id=<?php echo $sale['id']; ?>" onclick="return confirm('Czy na pewno chcesz usunąć tę sprzedaż?')" class="btn-icon delete" title="Usuń">
+                                                <a href="?action=delete_sale&id=<?php echo $sale['id']; ?>"
+                                                    onclick="return confirm('Czy na pewno chcesz usunąć tę sprzedaż?')"
+                                                    class="btn-icon delete" title="Usuń">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -758,14 +796,15 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                     <?php endif; ?>
                 </div>
 
-            <!-- Services & Executions -->
+                <!-- Services & Executions -->
             <?php elseif ($action === 'services'): ?>
                 <div class="content-section">
                     <div class="section-header">
                         <h2><i class="fas fa-plus"></i> Zarejestruj wykonanie usługi</h2>
                     </div>
                     <p style="color: #666; margin-bottom: 15px;">
-                        <i class="fas fa-info-circle"></i> Cena usługi (z VAT) będzie podzielona równo między wybranych członków zespołu. Faktura jest opcjonalna.
+                        <i class="fas fa-info-circle"></i> Cena usługi (z VAT) będzie podzielona równo między wybranych
+                        członków zespołu. Faktura jest opcjonalna.
                     </p>
                     <form method="POST" action="?action=add_service_exec" class="form-grid">
                         <div class="form-group">
@@ -773,21 +812,28 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                             <select id="service_id" name="service_id" required onchange="updateServicePrice()">
                                 <option value="">-- Wybierz usługę --</option>
                                 <?php foreach ($services as $serv): ?>
-                                    <option value="<?php echo $serv['id']; ?>" data-price="<?php echo $serv['price']; ?>"><?php echo htmlspecialchars($serv['name']); ?> (<?php echo number_format($serv['price'], 2); ?> zł)</option>
+                                    <option value="<?php echo $serv['id']; ?>" data-price="<?php echo $serv['price']; ?>">
+                                        <?php echo htmlspecialchars($serv['name']); ?>
+                                        (<?php echo number_format($serv['price'], 2); ?> zł)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="service_price">Cena usługi (z VAT) *</label>
-                            <input type="number" id="service_price" name="service_price" step="0.01" min="0" required placeholder="0.00">
+                            <input type="number" id="service_price" name="service_price" step="0.01" min="0" required
+                                placeholder="0.00">
                         </div>
                         <div class="form-group">
                             <label for="service_invoice_id">Faktura (opcjonalnie)</label>
                             <select id="service_invoice_id" name="invoice_id">
                                 <option value="">-- Bez faktury --</option>
-                                <?php if (!empty($invoices)): foreach ($invoices as $inv): ?>
-                                    <option value="<?php echo $inv['id']; ?>"><?php echo htmlspecialchars($inv['invoice_number']); ?> - <?php echo htmlspecialchars($inv['client_name']); ?> (<?php echo number_format($inv['total'], 2); ?> zł)</option>
-                                <?php endforeach; else: ?>
+                                <?php if (!empty($invoices)):
+                                    foreach ($invoices as $inv): ?>
+                                        <option value="<?php echo $inv['id']; ?>">
+                                            <?php echo htmlspecialchars($inv['invoice_number']); ?> -
+                                            <?php echo htmlspecialchars($inv['client_name']); ?>
+                                            (<?php echo number_format($inv['total'], 2); ?> zł)</option>
+                                    <?php endforeach; else: ?>
                                     <option disabled>Brak dostępnych faktur</option>
                                 <?php endif; ?>
                             </select>
@@ -797,8 +843,10 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                             <div class="checkbox-grid">
                                 <?php foreach ($team_members as $member): ?>
                                     <div class="checkbox-item">
-                                        <input type="checkbox" id="member_<?php echo $member['id']; ?>" name="team_members[]" value="<?php echo $member['id']; ?>" onchange="updateServiceShare()">
-                                        <label for="member_<?php echo $member['id']; ?>"><?php echo htmlspecialchars($member['name']); ?></label>
+                                        <input type="checkbox" id="member_<?php echo $member['id']; ?>" name="team_members[]"
+                                            value="<?php echo $member['id']; ?>" onchange="updateServiceShare()">
+                                        <label
+                                            for="member_<?php echo $member['id']; ?>"><?php echo htmlspecialchars($member['name']); ?></label>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -806,7 +854,8 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                         <div style="grid-column: 1 / -1;" id="service-share-display" style="display: none;"></div>
                         <div style="grid-column: 1 / -1;">
                             <label for="service_notes">Notatka</label>
-                            <textarea id="service_notes" name="notes" rows="3" placeholder="Uwagi dotyczące usługi"></textarea>
+                            <textarea id="service_notes" name="notes" rows="3"
+                                placeholder="Uwagi dotyczące usługi"></textarea>
                         </div>
                         <div style="grid-column: 1 / -1;">
                             <button type="submit" class="btn btn-primary">
@@ -839,13 +888,13 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($service_execs as $exec): 
+                                    <?php foreach ($service_execs as $exec):
                                         $team_q = $pdo->prepare("SELECT tm.name FROM service_team st JOIN team_members tm ON st.team_member_id = tm.id WHERE st.execution_id = ?");
                                         $team_q->execute([$exec['id']]);
                                         $team_names = array_column($team_q->fetchAll(), 'name');
                                         $team_count_service = count($team_names);
                                         $per_person = $team_count_service > 0 ? $exec['service_price'] / $team_count_service : 0;
-                                    ?>
+                                        ?>
                                         <tr>
                                             <td><strong><?php echo htmlspecialchars($exec['service_name']); ?></strong></td>
                                             <td><?php echo number_format($exec['service_price'], 2); ?> zł</td>
@@ -853,7 +902,9 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                             <td><?php echo number_format($per_person, 2); ?> zł</td>
                                             <td><?php echo date('d.m.Y H:i', strtotime($exec['executed_at'])); ?></td>
                                             <td>
-                                                <a href="?action=delete_service_exec&id=<?php echo $exec['id']; ?>" onclick="return confirm('Czy na pewno chcesz usunąć tę usługę?')" class="btn-icon delete" title="Usuń">
+                                                <a href="?action=delete_service_exec&id=<?php echo $exec['id']; ?>"
+                                                    onclick="return confirm('Czy na pewno chcesz usunąć tę usługę?')"
+                                                    class="btn-icon delete" title="Usuń">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -865,7 +916,7 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                     <?php endif; ?>
                 </div>
 
-            <!-- Reports -->
+                <!-- Reports -->
             <?php elseif ($action === 'reports'): ?>
                 <div class="dashboard-grid">
                     <div class="stat-card">
@@ -912,7 +963,7 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php 
+                                    <?php
                                     $total_investments = 0;
                                     $total_earned = 0;
                                     $grand_total_sum = 0;
@@ -920,21 +971,27 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                         $total_investments += $member['total_invested'];
                                         $total_earned += $member['total_earned'];
                                         $grand_total_sum += $member['total_sum'];
-                                    ?>
+                                        ?>
                                         <tr>
                                             <td><strong><?php echo htmlspecialchars($member['name']); ?></strong></td>
-                                            <td style="color: #ff6b35; font-weight: bold;">-<?php echo number_format($member['total_invested'], 2); ?> zł</td>
-                                            <td style="color: #28a745;"><?php echo number_format($member['total_earned_products'], 2); ?> zł</td>
-                                            <td style="color: #667eea;"><?php echo number_format($member['total_earned_services'], 2); ?> zł</td>
-                                            <td style="font-weight: bold; color: #2196F3;">+<?php echo number_format($member['total_earned'], 2); ?> zł</td>
-                                            <td style="font-weight: bold; font-size: 1.1em; color: #28a745;"><?php echo number_format($member['total_sum'], 2); ?> zł</td>
+                                            <td style="color: #ff6b35; font-weight: bold;">
+                                                -<?php echo number_format($member['total_invested'], 2); ?> zł</td>
+                                            <td style="color: #28a745;">
+                                                <?php echo number_format($member['total_earned_products'], 2); ?> zł</td>
+                                            <td style="color: #667eea;">
+                                                <?php echo number_format($member['total_earned_services'], 2); ?> zł</td>
+                                            <td style="font-weight: bold; color: #2196F3;">
+                                                +<?php echo number_format($member['total_earned'], 2); ?> zł</td>
+                                            <td style="font-weight: bold; font-size: 1.1em; color: #28a745;">
+                                                <?php echo number_format($member['total_sum'], 2); ?> zł</td>
                                         </tr>
                                     <?php endforeach; ?>
                                     <tr style="background: #f8f9fa; font-weight: 600; font-size: 1.1em;">
                                         <td>RAZEM:</td>
                                         <td style="color: #ff6b35;">-<?php echo number_format($total_investments, 2); ?> zł</td>
                                         <td style="color: #28a745;"><?php echo number_format($total_profit, 2); ?> zł</td>
-                                        <td style="color: #667eea;"><?php echo number_format($total_service_payment, 2); ?> zł</td>
+                                        <td style="color: #667eea;"><?php echo number_format($total_service_payment, 2); ?> zł
+                                        </td>
                                         <td style="color: #2196F3;">+<?php echo number_format($total_earned, 2); ?> zł</td>
                                         <td><?php echo number_format($grand_total_sum, 2); ?> zł</td>
                                     </tr>
@@ -965,21 +1022,26 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $grand_total = 0; foreach ($team_summary as $member): 
+                                    <?php $grand_total = 0;
+                                    foreach ($team_summary as $member):
                                         $total_member = $member['profit_share'] + $member['service_payment'];
                                         $grand_total += $total_member;
-                                    ?>
+                                        ?>
                                         <tr>
                                             <td><strong><?php echo htmlspecialchars($member['name']); ?></strong></td>
-                                            <td style="color: #28a745;"><?php echo number_format($member['profit_share'], 2); ?> zł</td>
-                                            <td style="color: #667eea;"><?php echo number_format($member['service_payment'], 2); ?> zł</td>
-                                            <td style="font-weight: bold; font-size: 1.1em;"><?php echo number_format($total_member, 2); ?> zł</td>
+                                            <td style="color: #28a745;"><?php echo number_format($member['profit_share'], 2); ?> zł
+                                            </td>
+                                            <td style="color: #667eea;"><?php echo number_format($member['service_payment'], 2); ?>
+                                                zł</td>
+                                            <td style="font-weight: bold; font-size: 1.1em;">
+                                                <?php echo number_format($total_member, 2); ?> zł</td>
                                         </tr>
                                     <?php endforeach; ?>
                                     <tr style="background: #f8f9fa; font-weight: 600; font-size: 1.1em;">
                                         <td>RAZEM:</td>
                                         <td style="color: #28a745;"><?php echo number_format($total_profit, 2); ?> zł</td>
-                                        <td style="color: #667eea;"><?php echo number_format($total_service_payment, 2); ?> zł</td>
+                                        <td style="color: #667eea;"><?php echo number_format($total_service_payment, 2); ?> zł
+                                        </td>
                                         <td><?php echo number_format($grand_total, 2); ?> zł</td>
                                     </tr>
                                 </tbody>
@@ -1015,7 +1077,8 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                                 <td><?php echo htmlspecialchars($dist['product_name']); ?></td>
                                                 <td><?php echo htmlspecialchars($dist['member_name']); ?></td>
                                                 <td><?php echo number_format($dist['contribution_percentage'], 2); ?>%</td>
-                                                <td style="color: #28a745; font-weight: bold;">+<?php echo number_format($dist['profit_share'], 2); ?> zł</td>
+                                                <td style="color: #28a745; font-weight: bold;">
+                                                    +<?php echo number_format($dist['profit_share'], 2); ?> zł</td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -1048,7 +1111,8 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
                                             <tr>
                                                 <td><?php echo htmlspecialchars($team_assign['service_name']); ?></td>
                                                 <td><?php echo htmlspecialchars($team_assign['member_name']); ?></td>
-                                                <td style="color: #667eea; font-weight: bold;">+<?php echo number_format($team_assign['payment_share'], 2); ?> zł</td>
+                                                <td style="color: #667eea; font-weight: bold;">
+                                                    +<?php echo number_format($team_assign['payment_share'], 2); ?> zł</td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -1080,6 +1144,7 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
             opacity: 0;
             transform: translateY(-10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -1109,7 +1174,7 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
         background: white;
         padding: 15px;
         border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .tab-link {
@@ -1303,7 +1368,7 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
     }
 
     .product-contribution-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         border-color: #ff6b35;
     }
 
@@ -1427,12 +1492,15 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
         .form-grid {
             grid-template-columns: 1fr;
         }
+
         .content-grid {
             grid-template-columns: 1fr;
         }
+
         .products-contributions-grid {
             grid-template-columns: 1fr;
         }
+
         .tabs-nav {
             overflow-x: auto;
         }
@@ -1444,95 +1512,95 @@ $total_service_payment = array_sum(array_column($service_teams, 'payment_share')
 </html>
 
 <script>
-// Update product info when selected
-function updateProductInfo() {
-    const select = document.getElementById('product_id');
-    const option = select.options[select.selectedIndex];
-    const infoDiv = document.getElementById('product-info');
-    
-    if (!option.value) {
-        infoDiv.innerHTML = '';
-        return;
+    // Update product info when selected
+    function updateProductInfo() {
+        const select = document.getElementById('product_id');
+        const option = select.options[select.selectedIndex];
+        const infoDiv = document.getElementById('product-info');
+
+        if (!option.value) {
+            infoDiv.innerHTML = '';
+            return;
+        }
+
+        const category = option.getAttribute('data-category');
+        const stock = option.getAttribute('data-stock');
+        infoDiv.innerHTML = `<i class="fas fa-info-circle"></i> Kategoria: ${category || 'Brak'} | Stan magazynu: ${stock} szt.`;
     }
-    
-    const category = option.getAttribute('data-category');
-    const stock = option.getAttribute('data-stock');
-    infoDiv.innerHTML = `<i class="fas fa-info-circle"></i> Kategoria: ${category || 'Brak'} | Stan magazynu: ${stock} szt.`;
-}
 
-// Update sale product info and auto-fill cost
-function updateSaleProductInfo() {
-    const select = document.getElementById('sale_product_id');
-    const option = select.options[select.selectedIndex];
-    const infoDiv = document.getElementById('sale-product-info');
-    const costInput = document.getElementById('sale_cost');
-    
-    if (!option.value) {
-        infoDiv.innerHTML = '';
-        costInput.value = '';
-        return;
+    // Update sale product info and auto-fill cost
+    function updateSaleProductInfo() {
+        const select = document.getElementById('sale_product_id');
+        const option = select.options[select.selectedIndex];
+        const infoDiv = document.getElementById('sale-product-info');
+        const costInput = document.getElementById('sale_cost');
+
+        if (!option.value) {
+            infoDiv.innerHTML = '';
+            costInput.value = '';
+            return;
+        }
+
+        const contribs = option.getAttribute('data-contribs');
+        infoDiv.innerHTML = `<i class="fas fa-info-circle"></i> Łączne wkłady: ${contribs} zł`;
+        costInput.value = contribs;
+        updateProfit();
     }
-    
-    const contribs = option.getAttribute('data-contribs');
-    infoDiv.innerHTML = `<i class="fas fa-info-circle"></i> Łączne wkłady: ${contribs} zł`;
-    costInput.value = contribs;
-    updateProfit();
-}
 
-// Calculate profit in real-time
-function updateProfit() {
-    const costInput = document.getElementById('sale_cost');
-    const priceInput = document.getElementById('sale_price');
-    const profitDisplay = document.getElementById('profit_display');
-    
-    const cost = parseFloat(costInput.value) || 0;
-    const price = parseFloat(priceInput.value) || 0;
-    const profit = price - cost;
-    
-    profitDisplay.value = profit.toFixed(2) + ' zł';
-}
+    // Calculate profit in real-time
+    function updateProfit() {
+        const costInput = document.getElementById('sale_cost');
+        const priceInput = document.getElementById('sale_price');
+        const profitDisplay = document.getElementById('profit_display');
 
-// Update service share when checkboxes change
-function updateServiceShare() {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="team_members[]"]');
-    const priceInput = document.getElementById('service_price');
-    const display = document.getElementById('service-share-display');
-    
-    const selected = Array.from(checkboxes).filter(cb => cb.checked);
-    const price = parseFloat(priceInput.value) || 0;
-    
-    if (selected.length === 0 || price === 0) {
-        display.style.display = 'none';
-        return;
+        const cost = parseFloat(costInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        const profit = price - cost;
+
+        profitDisplay.value = profit.toFixed(2) + ' zł';
     }
-    
-    const perPerson = price / selected.length;
-    
-    let html = '<div style="background: #e8f4f8; border-left: 4px solid #667eea; padding: 12px; border-radius: 5px;"><strong><i class="fas fa-users"></i> Podział wynagrodzeń:</strong><br><br>';
-    selected.forEach(checkbox => {
-        const label = checkbox.nextElementSibling.textContent;
-        html += `<div style="margin: 6px 0;"><i class="fas fa-arrow-right"></i> <strong>${label}:</strong> <span style="color: #667eea; font-weight: bold;">${perPerson.toFixed(2)} zł</span></div>`;
-    });
-    html += '</div>';
-    
-    display.innerHTML = html;
-    display.style.display = 'block';
-}
 
-// Set initial service price from selected service
-document.addEventListener('DOMContentLoaded', function() {
-    const serviceSelect = document.querySelector('select[name="service_id"]');
-    if (serviceSelect) {
-        serviceSelect.addEventListener('change', function() {
-            const option = this.options[this.selectedIndex];
-            const price = option.getAttribute('data-price');
-            if (price) {
-                document.getElementById('service_price').value = price;
-                updateServiceShare();
-            }
+    // Update service share when checkboxes change
+    function updateServiceShare() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="team_members[]"]');
+        const priceInput = document.getElementById('service_price');
+        const display = document.getElementById('service-share-display');
+
+        const selected = Array.from(checkboxes).filter(cb => cb.checked);
+        const price = parseFloat(priceInput.value) || 0;
+
+        if (selected.length === 0 || price === 0) {
+            display.style.display = 'none';
+            return;
+        }
+
+        const perPerson = price / selected.length;
+
+        let html = '<div style="background: #e8f4f8; border-left: 4px solid #667eea; padding: 12px; border-radius: 5px;"><strong><i class="fas fa-users"></i> Podział wynagrodzeń:</strong><br><br>';
+        selected.forEach(checkbox => {
+            const label = checkbox.nextElementSibling.textContent;
+            html += `<div style="margin: 6px 0;"><i class="fas fa-arrow-right"></i> <strong>${label}:</strong> <span style="color: #667eea; font-weight: bold;">${perPerson.toFixed(2)} zł</span></div>`;
         });
+        html += '</div>';
+
+        display.innerHTML = html;
+        display.style.display = 'block';
     }
-});
+
+    // Set initial service price from selected service
+    document.addEventListener('DOMContentLoaded', function () {
+        const serviceSelect = document.querySelector('select[name="service_id"]');
+        if (serviceSelect) {
+            serviceSelect.addEventListener('change', function () {
+                const option = this.options[this.selectedIndex];
+                const price = option.getAttribute('data-price');
+                if (price) {
+                    document.getElementById('service_price').value = price;
+                    updateServiceShare();
+                }
+            });
+        }
+    });
 </script>
 
 </body>

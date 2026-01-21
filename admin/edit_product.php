@@ -64,6 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['add_contribution']))
     $description = trim($_POST['description']);
     $price = floatval($_POST['price']);
     $category = trim($_POST['category']);
+
+    if (empty($category)) {
+        $error = 'Wybierz kategorię produktu!';
+    }
+
     $stock = intval($_POST['stock']);
     $olx_link = trim($_POST['olx_link']);
     $featured = isset($_POST['featured']) ? 1 : 0;
@@ -204,8 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['add_contribution']))
                     </div>
 
                     <div class="form-group">
-                        <label for="category">Kategoria</label>
-                        <select id="category" name="category">
+                        <label for="category">Kategoria *</label>
+                        <select id="category" name="category" required>
                             <option value="">Wybierz kategorię</option>
                             <option value="laptopy" <?php echo ($product['category'] == 'laptopy') ? 'selected' : ''; ?>>
                                 Laptopy</option>
