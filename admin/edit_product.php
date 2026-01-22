@@ -192,6 +192,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['add_contribution']))
                         <label for="description">Opis Produktu</label>
                         <textarea id="description" name="description" rows="4"
                             placeholder="Krótki opis produktu"><?php echo htmlspecialchars($product['description']); ?></textarea>
+                        <div class="form-hint" style="margin-top: 5px; font-size: 0.85rem; color: #666;">
+                            <i class="fas fa-info-circle"></i> <strong>WSKAZÓWKA FORMATOWANIA:</strong><br>
+                            • <code>-</code> (myślnik) = prosta kreska (minus)<br>
+                            • <code>*</code> (gwiazdka) = ikona gwiazdki (ważne)<br>
+                            • <code>•</code> (kropka/alt+7) = zielony ptaszek (potwierdzenie)<br>
+                            <em>(WIELKIE LITERY lub dwukropek <code>:</code> na końcu linii tworzą nagłówek)</em>
+                        </div>
                     </div>
 
                     <div class="form-row">
