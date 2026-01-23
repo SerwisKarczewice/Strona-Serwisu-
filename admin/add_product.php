@@ -222,7 +222,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Cena (zł) *</label>
-                            <input type="number" id="price" name="price" step="0.01" min="0" value="0.00" required>
+                            <input type="number" id="price" name="price" step="0.01" min="0" value="0.00" required
+                                oninput="deselectCards()">
                         </div>
 
                         <div class="form-group">
@@ -315,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label class="state-toggle">
                                         <input type="radio" name="cpu_state" value="used" checked
                                             onchange="updatePrice()">
-                                        Używana (-20%)
+                                        Używana
                                     </label>
                                 </div>
                             </div>
@@ -341,7 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </label>
                                     <label class="state-toggle">
                                         <input type="radio" name="motherboard_state" value="used" checked
-                                            onchange="updatePrice()"> Używana (-20%)
+                                            onchange="updatePrice()"> Używana
                                     </label>
                                 </div>
                             </div>
@@ -367,7 +368,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label class="state-toggle">
                                         <input type="radio" name="ram_state" value="used" checked
                                             onchange="updatePrice()">
-                                        Używana (-20%)
+                                        Używana
                                     </label>
                                 </div>
                             </div>
@@ -393,7 +394,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label class="state-toggle">
                                         <input type="radio" name="psu_state" value="used" checked
                                             onchange="updatePrice()">
-                                        Używana (-20%)
+                                        Używana
                                     </label>
                                 </div>
                             </div>
@@ -419,7 +420,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label class="state-toggle">
                                         <input type="radio" name="case_state" value="used" checked
                                             onchange="updatePrice()">
-                                        Używana (-20%)
+                                        Używana
                                     </label>
                                 </div>
                             </div>
@@ -450,7 +451,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label class="state-toggle">
                                         <input type="radio" name="gpu_state" value="used" checked
                                             onchange="updatePrice()">
-                                        Używana (-20%)
+                                        Używana
                                     </label>
                                 </div>
                             </div>
@@ -477,7 +478,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label class="state-toggle">
                                         <input type="radio" name="storage_state" value="used" checked
                                             onchange="updatePrice()">
-                                        Używana (-20%)
+                                        Używana
                                     </label>
                                 </div>
                             </div>
@@ -504,7 +505,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label class="state-toggle">
                                         <input type="radio" name="cooling_state" value="used" checked
                                             onchange="updatePrice()">
-                                        Używana (-20%)
+                                        Używana
                                     </label>
                                 </div>
                             </div>
@@ -562,31 +563,102 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <span>Koszt całkowity:</span>
                                     <strong id="totalCost">0.00 zł</strong>
                                 </div>
-                                <hr>
-                                <div class="price-row margin-price">
-                                    <span>Cena minimalna (+10%):</span>
-                                    <strong id="minPrice">0.00 zł</strong>
-                                </div>
-                                <div class="price-row margin-price suggested">
-                                    <span>Cena sugerowana (+20%):</span>
-                                    <strong id="suggestedPrice">0.00 zł</strong>
-                                </div>
-                                <div class="price-row margin-price">
-                                    <span>Cena maksymalna (+30%):</span>
-                                    <strong id="maxPrice">0.00 zł</strong>
+
+                                <h5 style="margin: 20px 0 10px; color: #2c3e50;">Wybierz cenę końcową:</h5>
+                                <div class="price-selection-grid">
+                                    <!-- Min Price -->
+                                    <div class="price-selection-card" id="price-card-min" onclick="selectPrice('min')"
+                                        data-value="0.00">
+                                        <div class="select-icon"><i class="fas fa-tags"></i></div>
+                                        <div class="price-label">Minimalna (+10%)</div>
+                                        <div class="price-value" id="min-price-value">0.00 zł</div>
+                                    </div>
+
+                                    <!-- Suggested Price -->
+                                    <div class="price-selection-card selected" id="price-card-suggested"
+                                        onclick="selectPrice('suggested')" data-value="0.00">
+                                        <div class="select-icon"><i class="fas fa-star"></i></div>
+                                        <div class="price-label">Sugerowana (+20%)</div>
+                                        <div class="price-value" id="suggested-price-value">0.00 zł</div>
+                                    </div>
+
+                                    <!-- Max Price -->
+                                    <div class="price-selection-card" id="price-card-max" onclick="selectPrice('max')"
+                                        data-value="0.00">
+                                        <div class="select-icon"><i class="fas fa-chart-line"></i></div>
+                                        <div class="price-label">Maksymalna (+30%)</div>
+                                        <div class="price-value" id="max-price-value">0.00 zł</div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="summary-actions" style="display: flex; gap: 10px; margin-top: 20px;">
-                                <button type="button" class="btn btn-secondary" onclick="applySuggestedPrice()"
-                                    style="flex: 1;">
-                                    <i class="fas fa-check"></i> Zastosuj cenę sugerowaną
-                                </button>
                                 <button type="button" class="btn btn-secondary" onclick="generateDescription()"
                                     style="flex: 1;">
                                     <i class="fas fa-file-alt"></i> Generuj opis zestawu
                                 </button>
                             </div>
                         </div>
+
+                        <style>
+                            .price-selection-grid {
+                                display: grid;
+                                grid-template-columns: 1fr 1fr 1fr;
+                                gap: 15px;
+                                margin-top: 15px;
+                            }
+
+                            .price-selection-card {
+                                border: 2px solid #e0e0e0;
+                                border-radius: 10px;
+                                padding: 15px;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                                background: #fff;
+                                position: relative;
+                            }
+
+                            .price-selection-card:hover {
+                                border-color: #ff6b35;
+                                transform: translateY(-2px);
+                                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                            }
+
+                            .price-selection-card.selected {
+                                border-color: #ff6b35;
+                                background: #fff5f0;
+                                box-shadow: 0 0 0 1px #ff6b35;
+                            }
+
+                            .select-icon {
+                                font-size: 1.5rem;
+                                color: #666;
+                                margin-bottom: 10px;
+                                transition: color 0.2s;
+                            }
+
+                            .price-selection-card.selected .select-icon {
+                                color: #ff6b35;
+                            }
+
+                            .price-label {
+                                font-size: 0.85rem;
+                                color: #666;
+                                margin-bottom: 5px;
+                            }
+
+                            .price-value {
+                                font-size: 1.2rem;
+                                font-weight: 800;
+                                color: #2c3e50;
+                            }
+
+                            @media (max-width: 768px) {
+                                .price-selection-grid {
+                                    grid-template-columns: 1fr;
+                                }
+                            }
+                        </style>
                     </div>
 
                     <!-- Sekcja wkładów finansowych -->
@@ -687,11 +759,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const option = select.options[select.selectedIndex];
                     let price = parseFloat(option.getAttribute('data-price')) || 0;
 
-                    // Sprawdź czy używana (-20%)
+                    // Sprawdź czy używana (Logika zmieniona: cena pozostaje bez zmian, tylko oznaczenie)
                     const stateRadios = document.getElementsByName(comp + '_state');
                     for (let radio of stateRadios) {
                         if (radio.checked && radio.value === 'used') {
-                            price = price * 0.8; // 20% rabat
+                            // price = price; // Cena bez zmian
                             break;
                         }
                     }
@@ -727,9 +799,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('componentsCost').textContent = componentsCost.toFixed(2) + ' zł';
             document.getElementById('servicesCost').textContent = servicesCost.toFixed(2) + ' zł';
             document.getElementById('totalCost').textContent = totalCost.toFixed(2) + ' zł';
-            document.getElementById('minPrice').textContent = minPrice.toFixed(2) + ' zł';
-            document.getElementById('suggestedPrice').textContent = suggestedPrice.toFixed(2) + ' zł';
-            document.getElementById('maxPrice').textContent = maxPrice.toFixed(2) + ' zł';
+
+            // Update values for selection cards
+            document.getElementById('min-price-value').textContent = minPrice.toFixed(2) + ' zł';
+            document.getElementById('suggested-price-value').textContent = suggestedPrice.toFixed(2) + ' zł';
+            document.getElementById('max-price-value').textContent = maxPrice.toFixed(2) + ' zł';
+
+            // Store raw values in data attributes for easy retrieval
+            document.getElementById('price-card-min').dataset.value = minPrice.toFixed(2);
+            document.getElementById('price-card-suggested').dataset.value = suggestedPrice.toFixed(2);
+            document.getElementById('price-card-max').dataset.value = maxPrice.toFixed(2);
+        }
+
+        function selectPrice(type) {
+            // Remove active class from all
+            document.querySelectorAll('.price-selection-card').forEach(card => card.classList.remove('selected'));
+
+            // Add to selected
+            const card = document.getElementById('price-card-' + type);
+            if (card) {
+                card.classList.add('selected');
+                const price = card.dataset.value;
+                document.getElementById('price').value = price;
+            }
+
+            // Trigger contribution transfer whenever price is selected
+            transferContributions();
         }
 
         function generateDescription() {
@@ -777,13 +872,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('description').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
+        // Deprecated: applySuggestedPrice merged into selectPrice
         function applySuggestedPrice() {
-            const suggestedPriceText = document.getElementById('suggestedPrice').textContent;
-            const price = parseFloat(suggestedPriceText.replace(' zł', ''));
-            document.getElementById('price').value = price.toFixed(2);
-
-            // Przenieś wkłady finansowe
-            transferContributions();
+            selectPrice('suggested');
         }
 
         const componentContributions = <?php echo json_encode($component_contributions); ?>;
