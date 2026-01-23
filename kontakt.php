@@ -92,6 +92,37 @@
                 <div class="contact-form-box">
                     <h2>Wyślij Wiadomość</h2>
                     <form class="form-contact" id="contactForm" method="POST" action="send_message.php">
+                        <!-- Dodatkowe zabezpieczenie przeciw botom (honeypot) -->
+                        <div style="display:none !important;">
+                            <input type="text" name="website_url" autocomplete="off" tabindex="-1">
+                        </div>
+
+                        <?php if (isset($_SESSION['form_status'])): ?>
+                            <div class="form-message <?php echo $_SESSION['form_status']; ?>" id="formResponse" style="display: block; margin-bottom: 25px;">
+                                <div class="message-icon">
+                                    <?php if ($_SESSION['form_status'] === 'success'): ?>
+                                        <i class="fas fa-check-circle"></i>
+                                    <?php else: ?>
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="message-text">
+                                    <?php 
+                                        echo $_SESSION['form_message']; 
+                                        unset($_SESSION['form_status']);
+                                        unset($_SESSION['form_message']);
+                                    ?>
+                                </div>
+                            </div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const response = document.getElementById('formResponse');
+                                    if (response) {
+                                        response.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                });
+                            </script>
+                        <?php endif; ?>
                         <div class="form-group">
                             <label for="name">Imię i Nazwisko *</label>
                             <input type="text" id="name" name="name" required>
@@ -146,60 +177,7 @@
 
     <?php include 'includes/footer.php'; ?>
     <script src="js/main.js"></script>
-    <script>
-        document.getElementById('contactForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
 
-            const formData = new FormData(this);
-            const formMessage = document.getElementById('formMessage');
-            const submitBtn = this.querySelector('button[type="submit"]');
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wysyłanie...';
-
-            try {
-                const response = await fetch('send_message.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                let result;
-                try {
-                    result = await response.json();
-                } catch (e) {
-                    // Jeśli serwer zwrócił coś co nie jest JSON-em, traktujemy to jako sukces (zgodnie z życzeniem)
-                    result = { success: true };
-                }
-
-                if (result.type === 'spam') {
-                    alert(result.message || 'Przekroczono limit wiadomości!');
-                } else {
-                    // Sukces
-                    formMessage.className = 'form-message success';
-                    formMessage.style.display = 'block';
-                    formMessage.textContent = 'Wiadomość została wysłana bez problemu! Dziękujemy za kontakt.';
-
-                    document.getElementById('subject').value = '';
-                    document.getElementById('message').value = '';
-                }
-            } catch (error) {
-                // Całkowity błąd połączenia - też pokazujemy sukces
-                formMessage.className = 'form-message success';
-                formMessage.style.display = 'block';
-                formMessage.textContent = 'Wiadomość została wysłana bez problemu! Dziękujemy za kontakt.';
-
-                document.getElementById('subject').value = '';
-                document.getElementById('message').value = '';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Wyślij Wiadomość';
-
-                setTimeout(() => {
-                    formMessage.style.display = 'none';
-                }, 8000);
-            }
-        });
-    </script>
 </body>
 
 </html>
@@ -388,25 +366,52 @@
     }
 
     .form-message {
-        padding: 15px;
-        border-radius: 10px;
+        padding: 20px 25px;
+        border-radius: 12px;
         display: none;
-        font-weight: 600;
-        text-align: center;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .form-message.success {
-        background: #d4edda;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
         color: #155724;
-        border: 2px solid #c3e6cb;
-        display: block;
+        border-left: 5px solid #28a745;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
+        display: flex;
     }
 
-    .form-message.error {
-        background: #f8d7da;
+    .form-message.error,
+    .form-message.spam {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
         color: #721c24;
-        border: 2px solid #f5c6cb;
-        display: block;
+        border-left: 5px solid #dc3545;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);
+        display: flex;
+    }
+
+    .message-icon {
+        font-size: 1.5rem;
+    }
+
+    .message-text {
+        font-size: 1.05rem;
+        line-height: 1.4;
     }
 
     .map-section {

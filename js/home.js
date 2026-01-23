@@ -42,58 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (contactForm) {
-        contactForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
 
-            const formData = new FormData(contactForm);
-            const formMessage = document.getElementById('formMessage');
-            const submitBtn = contactForm.querySelector('button[type="submit"]');
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wysyłanie...';
-
-            try {
-                const response = await fetch('send_message.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                let result;
-                try {
-                    result = await response.json();
-                } catch (e) {
-                    result = { success: true };
-                }
-
-                if (result.type === 'spam') {
-                    alert(result.message || 'Przekroczono limit wiadomości!');
-                } else {
-                    // Sukces
-                    formMessage.className = 'form-message success';
-                    formMessage.style.display = 'block';
-                    formMessage.textContent = 'Wiadomość została wysłana bez problemu! Dziękujemy za kontakt.';
-
-                    document.getElementById('subject').value = '';
-                    document.getElementById('message').value = '';
-                }
-            } catch (error) {
-                formMessage.className = 'form-message success';
-                formMessage.style.display = 'block';
-                formMessage.textContent = 'Wiadomość została wysłana bez problemu! Dziękujemy za kontakt.';
-
-                document.getElementById('subject').value = '';
-                document.getElementById('message').value = '';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Wyślij Wiadomość';
-
-                setTimeout(() => {
-                    formMessage.style.display = 'none';
-                }, 8000);
-            }
-        });
-    }
 
     let lastScroll = 0;
     const navbar = document.querySelector('.navbar');

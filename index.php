@@ -320,6 +320,38 @@ increment_site_visits();
             <div class="contact-wrapper">
 
                 <form class="form" id="contactForm" method="POST" action="send_message.php">
+                    <!-- Dodatkowe zabezpieczenie przeciw botom (honeypot) -->
+                    <div style="display:none !important;">
+                        <input type="text" name="website_url" autocomplete="off" tabindex="-1">
+                    </div>
+
+                    <?php if (isset($_SESSION['form_status'])): ?>
+                        <div class="form-message <?php echo $_SESSION['form_status']; ?>" id="formResponse"
+                            style="display: block; margin-bottom: 25px;">
+                            <div class="message-icon">
+                                <?php if ($_SESSION['form_status'] === 'success'): ?>
+                                    <i class="fas fa-check-circle"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                <?php endif; ?>
+                            </div>
+                            <div class="message-text">
+                                <?php
+                                echo $_SESSION['form_message'];
+                                unset($_SESSION['form_status']);
+                                unset($_SESSION['form_message']);
+                                ?>
+                            </div>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const response = document.getElementById('formResponse');
+                                if (response) {
+                                    response.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            });
+                        </script>
+                    <?php endif; ?>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="name">Imię i Nazwisko *</label>
@@ -405,127 +437,53 @@ increment_site_visits();
     <script src="js/home.js"></script>
 </body>
 <style>
-    .visit-section {
-        padding: 80px 0;
-        background: #fff;
-    }
-
-    .visit-subtitle {
-        text-align: center;
-        font-size: 1.2rem;
-        color: var(--text-light);
-        margin-bottom: 50px;
-        margin-top: -10px;
-    }
-
-    .visit-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 40px;
-        max-width: 1100px;
-        margin: 0 auto;
-    }
-
-    .visit-card {
-        background: var(--light-color);
-        border-radius: 20px;
-        padding: 45px 40px;
-        transition: all 0.3s ease;
-        box-shadow: var(--shadow);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .visit-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: var(--gradient-primary);
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.3s ease;
-    }
-
-    .visit-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .visit-card:hover {
-        transform: translateY(-8px);
-        box-shadow: var(--shadow-hover);
-    }
-
-    .visit-icon {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
+    .form-message {
+        padding: 20px 25px;
+        border-radius: 12px;
+        display: none;
+        font-weight: 500;
         display: flex;
         align-items: center;
-        justify-content: center;
-        margin: 0 auto 30px;
-        transition: all 0.3s ease;
+        gap: 15px;
+        animation: slideDown 0.4s ease-out;
     }
 
-    .visit-icon.home {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    .visit-icon.mobile {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    .form-message.success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+        border-left: 5px solid #28a745;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
+        display: flex;
     }
 
-    .visit-card:hover .visit-icon {
-        transform: scale(1.08) rotate(-5deg);
+    .form-message.error,
+    .form-message.spam {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+        border-left: 5px solid #dc3545;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);
+        display: flex;
     }
 
-    .visit-icon i {
-        font-size: 3.5rem;
-        color: #fff;
+    .message-icon {
+        font-size: 1.5rem;
     }
 
-    .visit-card h3 {
-        font-size: 1.9rem;
-        color: var(--dark-color);
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: 600;
-    }
-
-    .visit-card>p {
-        color: var(--text-light);
-        line-height: 1.8;
-        margin-bottom: 25px;
-        text-align: center;
+    .message-text {
         font-size: 1.05rem;
-    }
-
-    .visit-benefits {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .visit-benefits li {
-        color: var(--dark-color);
-        padding: 12px 0;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .visit-benefits li:last-child {
-        border-bottom: none;
-    }
-
-    .visit-benefits li i {
-        color: #4CAF50;
-        font-size: 1.1rem;
-        flex-shrink: 0;
+        line-height: 1.4;
     }
 </style>
 
