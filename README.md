@@ -1,40 +1,43 @@
- 🖥️ Serwis Komputerowy - Strona WWW
+🖥️ Serwis Komputerowy - Strona WWW
 
-Profesjonalna strona internetowa dla serwisu komputerowego z pełnym panelem administracyjnym.
+Profesjonalna strona internetowa dla serwisu komputerowego z rozbudowanym panelem administracyjnym, systemem finansowym i automatycznym skalowaniem UI.
 
 ---
 
 ## 📋 Szybkie Linki
 
 - [Wymagania](#-wymagania)
-- [Instalacja](#-instalacja)
+- [Instalacja i Admin](#-instalacja-i-zarządzanie-adminem)
 - [Struktura plików](#-struktura-plików)
-- [Panel Admin](#-panel-administracyjny)
+- [Panel Administracyjny](#-panel-administracyjny)
+- [Wygląd i Estetyka](#-wygląd-i-estetyka)
 - [TODO](#-todo)
 
 ---
 
 ## ⚙️ Wymagania
 
-- **PHP**: 7.4+
-- **MySQL**: 5.7+
-- **Rozszerzenia**: PDO, pdo_mysql, GD, mbstring
-- **Przestrzeń**: min. 100MB + miejsce na zdjęcia
+- **PHP**: 7.4+ (zalecane 8.x)
+- **MySQL/MariaDB**: 5.7+
+- **Rozszerzenia**: PDO, GD (do obróbki zdjęć), mbstring
+- **Przestrzeń**: min. 100MB + miejsce na załączniki/zdjęcia
 
 ---
 
-## � Instalacja
+## � Instalacja i Zarządzanie Adminem
 
-1. **Rozpakuj pliki** do katalogu serwera
-2. **Utwórz bazę**: `mysql -u root -p < admin/database.sql`
-3. **Edytuj** `config.php` z danymi MySQL
-4. **Utwórz foldery**: 
-   ```bash
-   mkdir -p uploads/gallery uploads/products
-   chmod 777 uploads/gallery uploads/products
-   ```
-5. **Utwórz admina**: Otwórz `http://localhost/create_admin.php` i **usuń plik**
-6. **Zaloguj się**: `http://localhost/admin/login.php`
+### Pierwsza konfiguracja (Kreowanie Admina)
+Projekt zawiera dedykowany skrypt do bezpiecznego tworzenia pierwszego konta administratora.
+
+1. **Baza danych**: Zaimportuj plik `admin/database.sql` (zawiera strukturę tabel dla newsów, produktów, galerii, finansów i użytkowników).
+2. **Konfiguracja**: Ustaw dane dostępowe w `config.php`.
+3. **Tworzenie konta**:
+   - Uruchom skrypt `http://podtwojadomena.pl/admin/create_admin.php`.
+   - Podaj nazwę użytkownika, bezpieczne hasło (jest automatycznie haszowane przez `password_hash()`) oraz email.
+   - **⚠️ CRITICAL SECURITY**: Po poprawnym utworzeniu konta, **NATYCHMIAST USUŃ** plik `admin/create_admin.php` z serwera. Skrypt ten nie posiada autentykacji (abyś mógł stworzyć pierwszego admina) i zostawienie go otwiera lukę bezpieczeństwa.
+
+### Konta i Uprawnienia
+System przechowuje użytkowników w tabeli `admin_users`. Każde logowanie aktualizuje pole `last_login`, co pozwala śledzić aktywność w panelu.
 
 ---
 
@@ -42,93 +45,104 @@ Profesjonalna strona internetowa dla serwisu komputerowego z pełnym panelem adm
 
 ```
 📦 Projekt
-├── admin/                          # Panel administracyjny
-│   ├── css/admin.css
-│   ├── includes/sidebar.php
-│   ├── index.php                   # Dashboard
-│   ├── login.php / logout.php      # Autentykacja
-│   ├── messages.php / view_message.php / delete_message.php
-│   ├── news.php / add_news.php / edit_news.php / toggle_news.php / delete_news.php
-│   ├── gallery.php / add_gallery.php / edit_gallery.php / delete_gallery.php
-│   ├── products.php / add_product.php / edit_product.php / delete_product.php / toggle_featured.php
-│   ├── services.php / add_service.php / edit_service.php / delete_service.php / toggle_service.php
-│   ├── invoices.php / save_invoice.php / view_invoice.php / delete_invoice.php / generate_pdf.php
-│   ├── calculator.php / calculator.js
-│   ├── mark_answered.php
-│   └── database.sql / create_admin.txt
+├── admin/                          # Panel administracyjny (Backend)
+│   ├── index.php                   # Dashboard ze statystykami i licznikami
+│   ├── finances.php                # System rozliczeń, wkładów i zysków (Team System)
+│   ├── calculator.php              # Zaawansowany kalkulator wycen i usług
+│   ├── database.sql                # Schemat bazy danych
+│   └── [moduły].php                # Zarządzanie wiadomościami, newsami, produktami itd.
 │
 ├── css/
-│   ├── home.css                    # Style strony głównej
-│   └── style.css                   # Style podstron
-│
-├── js/
-│   ├── home.js
-│   └── main.js
+│   ├── home.css                    # Style strony głównej (Hero, Visit Section, Animacje)
+│   └── style.css                   # Style globalne, karty produktów, pakiety ofertowe
 │
 ├── includes/
-│   ├── nav.php                     # Nawigacja
-│   └── footer.php                  # Stopka
+│   ├── nav.php                     # Inteligentne menu (zaznacza aktywną stronę)
+│   ├── footer.php                  # Stopka z danymi kontaktowymi
+│   └── visit_counter.php           # Logika licznika odwiedzin (unikalne sesje)
 │
-├── uploads/                         # Zdjęcia (tworzone automatycznie)
-│   ├── gallery/                    # Zdjęcia galerii
-│   └── products/                   # Zdjęcia produktów
-│
-├── STRONY FRONTEND
-├── index.php                        # Strona główna
-├── o-nas.php                        # O nas
-├── oferta.php                       # Oferta usług
-├── produkty.php                     # Katalog produktów
-├── galeria.php                      # Galeria zdjęć
-├── kontakt.php                      # Kontakt
-├── news-detail.php                  # Szczegóły aktualności
-│
-├── KONFIGURACJA
-├── config.php                       # Ustawienia bazy danych
-├── send_message.php                 # Obsługa formularza kontaktowego
-│
-└── README.md                        # Dokumentacja
+├── index.php                        # Strona główna (Landing Page)
+├── oferta.php                       # Interaktywny cennik usług
+├── produkty.php                     # Sklep/Katalog podzespołów
+├── product-detail.php               # Szczegółowy opis produktu (specyfikacja)
+└── config.php                       # Globalne połączenie PDO i start sesji
 ```
 
 ---
 
 ## 🔐 Panel Administracyjny
 
-**URL**: `http://localhost/admin/login.php`
+Panel został zaprojektowany w ciemno-pomarańczowej estetyce (Dark-Orange Premium), zapewniającej komfort pracy:
 
-| Sekcja | Funkcje |
-|--------|---------|
-| **Wiadomości** | Odbieranie wiadomości z formularza, statusy, odpowiadanie |
-| **Aktualności** | Dodawanie, edycja, publikowanie newsów |
-| **Galeria** | Upload zdjęć, kategorie, edycja, usuwanie |
-| **Produkty** | Upload zdjęć, ceny, kategorie, bestsellery |
-| **Usługi** | Usługi pojedyncze, pakiety, ceny promocyjne |
-| **Faktury** | Kalkulator, generowanie PDF |
+- **Dashboard**: Podgląd na żywo liczby wiadomości, aktywnych usług i **całkowitej liczby odwiedzin strony**.
+- **System Finansowy**: Unikalna funkcja zarządzania "Wkładami Członków Zespołu". Pozwala na:
+    - Dodawanie wkładów finansowych do konkretnych produktów (np. kto kupił procesor, kto płytę).
+    - Automatyczne wyliczanie zysku netto po sprzedaży.
+    - Dzielenie zysku między członków zespołu na podstawie procentowego udziału w kosztach.
+- **Kalkulator & Faktury**: Możliwość tworzenia ofert dla klientów i generowania ich do formatu PDF.
 
-⚠️ **Bezpieczeństwo**: Zmień hasło administratora po pierwszym logowaniu
+---
+
+## ✨ Wygląd i Estetyka
+
+### Design System
+Strona oparta jest o nowoczesny **Design System** z silnym naciskiem na "Wow Factor":
+- **Kolorystyka**: Głęboki pomarańcz (`#ff6b35`) połączony z czystym białym tłem i delikatnymi szarościami w sekcjach tekstowych.
+- **Efekty**: Glassmorphism (szklane elementy), płynne gradienty oraz cienie typu `Soft-Shadow` dla kart produktów.
+- **Animacje**: Mikro-interakcje na przyciskach, gładkie hover-efekty obrazków i animowane ikony pływające w tle (Hero Section).
+
+### 📏 Adaptive Scaling (Inteligentny Zoom)
+Wdrożyliśmy niestandardowy system skalowania, który rozwiązuje problem "zbyt wielkich elementów" na standardowych laptopach:
+- **Widok 1440p+**: Strona wyświetla się w pełnej krasie z bazowym fontem `18px`.
+- **Widok 1080p (Standard Laptop)**: Strona stosuje **automatyczny zoom 80%** (baza `14.4px`). Dzięki temu na rozdzielczości 1920x1080 witryna wygląda tak, jakby użytkownik ręcznie pomniejszył widok w przeglądarce – staje się bardziej zwarta, profesjonalna i "skondensowana".
+- **Mobile First**: Układy typu Grid automatycznie przełączają się w tryb jednokolumnowy na telefonach, zachowując czytelność przycisków.
+
+---
+
+## 🎨 Paleta Kolorystyczna (Brand Identity)
+
+Projekt wykorzystuje spójną paletę barw, która definiuje nowoczesny i profesjonalny charakter serwisu:
+
+| Kolor | Nazwa | Hex | Zastosowanie |
+|:---:|:---|:---:|:---|
+| ![#ff6b35](https://img.placeholder.com/15/ff6b35?text=+) | **Primary** | `#ff6b35` | Główne przyciski, branding, akcenty. |
+| ![#f7931e](https://img.placeholder.com/15/f7931e?text=+) | **Secondary** | `#f7931e` | Gradienty, elementy uzupełniające. |
+| ![#ffc107](https://img.placeholder.com/15/ffc107?text=+) | **Accent** | `#ffc107` | Gwiazdki, wyróżnienia, ostrzeżenia. |
+| ![#2c3e50](https://img.placeholder.com/15/2c3e50?text=+) | **Dark** | `#2c3e50` | Nagłówki, tła paneli, ciemne teksty. |
+| ![#ecf0f1](https://img.placeholder.com/15/ecf0f1?text=+) | **Light** | `#ecf0f1` | Tła sekcji, delikatne separatory. |
+| ![#333333](https://img.placeholder.com/15/333333?text=+) | **Text Dark** | `#333333` | Główny tekst strony. |
+| ![#666666](https://img.placeholder.com/15/666666?text=+) | **Text Light** | `#666666` | Opisy pomocnicze, daty, meta-dane. |
+
+**Główne Gradienty:**
+- **Primary Gradient:** `linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)`
+- **Secondary Gradient:** `linear-gradient(135deg, #ffc107 0%, #ff9800 100%)`
 
 ---
 
 ## ⚙️ Konfiguracja
 
-1. **Email** - edytuj `send_message.php`:
-   ```php
-   $to = 'twoj@email.pl';
-   ```
-
-2. **Dane kontaktowe** - edytuj w `kontakt.php` i `includes/footer.php`
-
-3. **Logo** - zmień w `includes/nav.php`
-
-4. **Kolory** - zmień zmienne CSS w `css/home.css` i `css/style.css`:
-   ```css
-   --primary-color: #ff6b35;
-   --secondary-color: #f7931e;
-   --accent-color: #ffc107;
-   ```
+Zmienne CSS znajdują się w nagłówku plików styli – możesz jednym kliknięciem zmienić kolorystykę całej marki:
+```css
+:root {
+    --primary-color: #ff6b35; /* Kolor główny (Brand) */
+    --gradient-primary: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+}
+```
 
 ---
 
-## 📋 TODO
+## � Typografia (Fonts)
 
+Strona wykorzystuje czytelny i nowoczesny system typograficzny oparty na fontach systemowych, co zapewnia błyskawiczne ładowanie strony:
 
-- Kalkulator do wyceny produktów i cala struktura z tym związana
+- **Główny Font:** `'Segoe UI'` (standard dla Windows, zapewniający świetną czytelność).
+- **Fallback:** `Tahoma`, `Geneva`, `Verdana`, `sans-serif`.
+- **Ikony:** `Font Awesome 6.4.0` (używane w menu, kartach produktów i panelu admina).
+
+---
+
+## �📋 TODO
+
+- [x] Zaawansowany system finansowy (podział zysków).
+- [x] Inteligentne skalowanie UI dla 1080p.
+- [x] Generator faktur PDF.
