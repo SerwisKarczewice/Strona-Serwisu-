@@ -7,10 +7,391 @@ if (!isset($_SESSION['admin_logged_in'])) {
 }
 
 if (!isset($_GET['id'])) {
-    die('Brak ID faktury');
+    die('Brak ID');
 }
 
-$invoiceId = intval($_GET['id']);
+$type = $_GET['type'] ?? 'invoice';
+$id = intval($_GET['id']);
+
+// Dane firmy (wspólne)
+$companyData = [
+    'name' => 'Serwis komputerowy Karczewice',
+    'address' => ' ul. Nadrzeczna 3b',
+    'city' => '42-270 Karczewice',
+    'nip' => ' ',
+    'phone' => '+48 662 993 490 / 536 200 332',
+    'email' => 'SerwisBiuroKarczewice@gmail.com'
+];
+
+if ($type === 'solution') {
+    // -- LOGIKA DLA ROZWIĄZAŃ (OFERT) --
+    $stmt = $pdo->prepare("SELECT s.*, c.name as client_name, c.company_name as client_company, c.address as client_address, c.email as client_email, c.phone as client_phone 
+                           FROM client_solutions s 
+                           JOIN clients c ON s.client_id = c.id 
+                           WHERE s.id = :id");
+    $stmt->execute([':id' => $id]);
+    $solution = $stmt->fetch();
+
+    if (!$solution)
+        die('Rozwiązanie nie istnieje');
+    $items = json_decode($solution['items_json'], true);
+
+    // -- STANDARD PROFESSIONAL PDF DESIGN FOR PROPOSALS --
+    // Matches the application's clean aesthetic without being over-designed.
+    ?>
+    <!DOCTYPE html>
+    <html lang="pl">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Proponowane Rozwiązanie: <?php echo htmlspecialchars($solution['title']); ?></title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background: #fff;
+                color: #333;
+                font-size: 14px;
+            }
+
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                border: 1px solid #eee;
+                padding: 40px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            }
+
+            /* Header */
+            .header {
+                display: flex;
+                justify-content: space-between;
+                border-bottom: 2px solid #ff6b35;
+                /* Admin accent color */
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+
+            .company-info h1 {
+                margin: 0;
+                color: #2c3e50;
+                font-size: 22px;
+            }
+
+            .company-info p {
+                margin: 5px 0 0;
+                color: #7f8c8d;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .doc-info {
+                text-align: right;
+            }
+
+            .doc-title {
+                font-size: 24px;
+                font-weight: bold;
+                color: #3498db;
+                text-transform: uppercase;
+                margin: 0;
+            }
+
+            .doc-meta {
+                color: #95a5a6;
+                font-size: 13px;
+                margin-top: 5px;
+            }
+
+            /* Client Section */
+            .client-section {
+                margin-bottom: 40px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #eee;
+            }
+
+            .section-label {
+                font-size: 11px;
+                text-transform: uppercase;
+                color: #999;
+                font-weight: 700;
+                letter-spacing: 1px;
+                margin-bottom: 10px;
+            }
+
+
+
+            .client-details {
+                font-size: 15px;
+                color: #2c3e50;
+                line-height: 1.5;
+            }
+
+            /* Description */
+            .description {
+                margin-bottom: 30px;
+                line-height: 1.6;
+                color: #444;
+            }
+
+            .description strong {
+                display: block;
+                margin-bottom: 10px;
+                color: #2c3e50;
+                font-size: 16px;
+            }
+
+            /* Table */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 30px;
+            }
+
+            th {
+                background: #2c3e50;
+                color: white;
+                text-align: left;
+                padding: 12px;
+                font-size: 13px;
+                text-transform: uppercase;
+            }
+
+            td {
+                padding: 12px;
+                border-bottom: 1px solid #eee;
+            }
+
+            tr:last-child td {
+                border-bottom: 2px solid #2c3e50;
+            }
+
+            .text-right {
+                text-align: right;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            /* Totals */
+            .total-section {
+                text-align: right;
+                margin-top: 20px;
+            }
+
+            .total-label {
+                font-size: 14px;
+                color: #7f8c8d;
+            }
+
+            .total-amount {
+                font-size: 28px;
+                font-weight: bold;
+                color: #27ae60;
+                margin-top: 5px;
+            }
+
+            /* Disclaimer Footer */
+            .footer-disclaimer {
+                margin-top: 50px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 11px;
+                color: #95a5a6;
+                text-align: center;
+                line-height: 1.5;
+            }
+
+            @media print {
+                body {
+                    padding: 0;
+                    background: white;
+                }
+
+                .container {
+                    border: none;
+                    box-shadow: none;
+                    padding: 0;
+                    max-width: 100%;
+                }
+
+                .no-print {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: 10,
+                filename: 'Propozycja_<?php echo $solution['id']; ?>.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Hide action bar
+            const actions = document.querySelector('.actions-bar');
+            actions.style.display = 'none';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                actions.style.display = 'flex';
+            });
+        }
+    </script>
+
+    <style>
+        .actions-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .action-btn {
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-print {
+            background: #2c3e50;
+        }
+
+        .btn-download {
+            background: #3498db;
+        }
+
+        @media print {
+
+            .no-print,
+            .actions-bar {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <body>
+        <div class="actions-bar no-print">
+            <button class="action-btn btn-print" onclick="window.print()">
+                <span style="font-size: 1.2em;">🖨️</span> Drukuj
+            </button>
+            <button class="action-btn btn-download" onclick="downloadPDF()">
+                <span style="font-size: 1.2em;">⬇️</span> Pobierz PDF
+            </button>
+        </div>
+
+        <div class="container" id="pdf-content">
+            <div class="header">
+                <div class="company-info">
+                    <h1><?php echo $companyData['name']; ?></h1>
+                    <p>
+                        <?php echo $companyData['address']; ?>, <?php echo $companyData['city']; ?><br>
+                        Tel: <?php echo $companyData['phone']; ?> | Email: <?php echo $companyData['email']; ?>
+                    </p>
+                </div>
+                <div class="doc-info">
+                    <div class="doc-title">Proponowane<br>Rozwiązanie</div>
+                    <div class="doc-meta">
+                        Dokument nr: #PROP/<?php echo $solution['id']; ?>/<?php echo date('Y'); ?><br>
+                        Data: <?php echo date('d.m.Y', strtotime($solution['created_at'])); ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client & Context -->
+            <div class="client-section">
+                <div class="section-label">Dla Klienta</div>
+                <div class="client-details">
+                    <strong
+                        style="font-size: 1.2em; color: #2c3e50;"><?php echo htmlspecialchars($solution['client_name']); ?></strong>
+                    <div style="margin-top: 5px; color: #555;">
+                        <?php if ($solution['client_company'])
+                            echo htmlspecialchars($solution['client_company']) . "<br>"; ?>
+                        <?php if ($solution['client_address'])
+                            echo htmlspecialchars($solution['client_address']) . "<br>"; ?>
+                        <?php if ($solution['client_phone'])
+                            echo "Tel: " . htmlspecialchars($solution['client_phone']); ?>
+                        <?php if ($solution['client_email'])
+                            echo " &bull; " . htmlspecialchars($solution['client_email']); ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="description">
+                <strong><?php echo htmlspecialchars($solution['title']); ?></strong>
+                <?php echo nl2br(htmlspecialchars($solution['description'])); ?>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">Lp.</th>
+                        <th style="width: 60%;">Nazwa Pozycji / Usługi</th>
+                        <th style="width: 15%;">Typ</th>
+                        <th class="text-right" style="width: 20%;">Wartość</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $i = 1;
+                    foreach ($items as $item): ?>
+                        <tr>
+                            <td style="color: #999;"><?php echo $i++; ?></td>
+                            <td>
+                                <strong><?php echo htmlspecialchars($item['name']); ?></strong>
+                            </td>
+                            <td style="font-size: 12px; color: #7f8c8d;">
+                                <?php
+                                $map = ['product' => 'Produkt', 'service' => 'Usługa', 'custom' => 'Inne'];
+                                echo $map[$item['type']] ?? '-';
+                                ?>
+                            </td>
+                            <td class="text-right"><?php echo number_format($item['price'], 2); ?> zł</td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <div class="total-section">
+                <div class="total-label">Szacunkowy koszt całkowity:</div>
+                <div class="total-amount"><?php echo number_format($solution['total_price'], 2); ?> PLN</div>
+            </div>
+
+
+        </div>
+    </body>
+
+    </html>
+    <?php
+    exit; // Koniec dla Oferty
+}
+
+// -- LOGIKA DLA FAKTUR (stara) --
+$invoiceId = $id;
 
 // Pobierz fakturę
 $stmt = $pdo->prepare("SELECT * FROM invoices WHERE id = :id");
@@ -26,15 +407,7 @@ $stmt = $pdo->prepare("SELECT * FROM invoice_items WHERE invoice_id = :id");
 $stmt->execute([':id' => $invoiceId]);
 $items = $stmt->fetchAll();
 
-// Dane firmy (edytuj według własnych danych)
-$companyData = [
-    'name' => 'Serwis komputerowy Karczewice',
-    'address' => ' ul. Nadrzeczna 3b',
-    'city' => '42-270 Karczewice',
-    'nip' => ' ',
-    'phone' => '+48 662 993 490 / 536 200 332',
-    'email' => 'SerwisBiuroKarczewice@gmail.com'
-];
+// Dane firmy (już zdefiniowane wyżej)
 ?>
 <!DOCTYPE html>
 <html lang="pl">

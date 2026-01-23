@@ -86,16 +86,21 @@ function addServiceItem() {
 // Dodaj produkt
 function addProductItem(selectId = 'selectProduct', qtyId = 'productQty') {
     const select = document.getElementById(selectId);
+    if (!select) return; // Guard clause
+
     const qtyInput = document.getElementById(qtyId);
     const qty = parseFloat(qtyInput.value) || 1;
 
     if (!select.value) {
-        alert('Wybierz produkt');
+        alert('Wybierz produkt z listy');
         return;
     }
 
     const option = select.options[select.selectedIndex];
-    const stock = parseInt(option.dataset.stock);
+
+    // Validate Stock
+    let stock = parseInt(option.dataset.stock);
+    if (isNaN(stock)) stock = 9999; // Fallback if stock not tracked
 
     if (qty > stock) {
         alert(`Brak wystarczającej ilości w magazynie! Dostępne: ${stock} szt.`);
@@ -108,15 +113,19 @@ function addProductItem(selectId = 'selectProduct', qtyId = 'productQty') {
         productId: select.value,
         name: option.dataset.name,
         quantity: qty,
-        unitPrice: parseFloat(option.dataset.price),
-        total: qty * parseFloat(option.dataset.price)
+        unitPrice: parseFloat(option.dataset.price) || 0,
+        total: qty * (parseFloat(option.dataset.price) || 0)
     };
 
     items.push(item);
     renderItems();
 
+    // Reset fields
     select.value = '';
-    document.getElementById('productQty').value = 1;
+    if (qtyInput) qtyInput.value = 1;
+
+    // Visual feedback
+    updateSummary();
 }
 
 // Dodaj własną pozycję

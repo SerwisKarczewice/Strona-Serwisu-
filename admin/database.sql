@@ -627,6 +627,7 @@ ALTER TABLE `service_team`
   ADD CONSTRAINT `st_execution_fk` FOREIGN KEY (`execution_id`) REFERENCES `service_executions` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `st_member_fk` FOREIGN KEY (`team_member_id`) REFERENCES `team_members` (`id`) ON DELETE CASCADE;
 
+ALTER TABLE contact_messages ADD COLUMN client_id INT NULL DEFAULT NULL AFTER id;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
