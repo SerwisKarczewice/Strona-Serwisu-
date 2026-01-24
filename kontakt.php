@@ -70,6 +70,9 @@
                         </div>
                         <b>*Po odczytaniu Twojej wiadomości oddzwonimy do Ciebie w ciągu 24h!
                             Jeśli nieodbierzesz, wyślemy sms-a.
+                            <br />
+                            *Jeśli podasz swój email, wyślemy Ci niezłocznie proponowane rozwiązanie problemu oraz
+                        szacowaną wycenę!
                         </b>
                     </div>
 
@@ -135,6 +138,10 @@
                         <div class="form-group">
                             <label for="phone">Numer Telefonu *</label>
                             <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email (opcjonalnie)</label>
+                            <input type="email" id="email" name="email" placeholder="Twój adres email">
                         </div>
                         <div class="form-group">
                             <label for="subject">Temat Wiadomości *</label>

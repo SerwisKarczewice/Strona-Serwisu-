@@ -363,6 +363,10 @@ increment_site_visits();
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="email">Email (opcjonalnie)</label>
+                        <input type="email" id="email" name="email" placeholder="Twój adres email">
+                    </div>
+                    <div class="form-group">
                         <label for="address">Adres Zamieszkania</label>
                         <input type="text" id="address" name="address"
                             placeholder="np. ul. Przykładowa 123, 00-001 Twoja miejscowość">
@@ -391,7 +395,11 @@ increment_site_visits();
                 <div class="contact-info">
                     <h3>Skontaktuj się z nami</h3>
                     <p>Masz pytania? Potrzebujesz wyceny? Wypełnij formularz, a my skontaktujemy się z Tobą najszybciej
-                        jak to możliwe!</p>
+                        jak to możliwe!
+                        <br />
+                        *Jeśli podasz swój email, wyślemy Ci niezłocznie proponowane rozwiązanie problemu oraz
+                        szacowaną wycenę!
+                    </p>
 
                     <div class="contact-details">
                         <div class="contact-detail">
@@ -425,7 +433,7 @@ increment_site_visits();
                         </div>
                     </div>
                     <b>*Po odczytaniu Twojej wiadomości oddzwonimy do Ciebie w ciągu 24h!
-                        Jeśli nieodbierzesz, wyślemy sms-a.
+                        Jeśli nieodbierzesz, wyślemy smsa.
                     </b>
                 </div>
             </div>

@@ -70,6 +70,11 @@ try {
     $address = trim($_POST['address'] ?? '');
     $subject = trim($_POST['subject'] ?? '');
     $message = trim($_POST['message'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+
+    if (!empty($email)) {
+        $message .= "\n\nEmail klienta: " . $email;
+    }
 
     if (empty($name) || empty($phone) || empty($subject) || empty($message)) {
         redirect_back(false, 'Proszę wypełnić wszystkie wymagane pola (*).');

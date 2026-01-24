@@ -11,6 +11,10 @@ $stmt = $pdo->prepare("SELECT * FROM clients WHERE id = ?");
 $stmt->execute([$client_id]);
 $client = $stmt->fetch();
 
+// AUTO-FIX: Ensure DB schema is correct
+define('SILENT_MIGRATION', true);
+require_once 'migration_clients.php';
+
 if (!$client) {
     header('Location: clients.php');
     exit;
@@ -35,13 +39,51 @@ $stmt = $pdo->prepare("SELECT * FROM client_solutions WHERE client_id = ? ORDER 
 $stmt->execute([$client_id]);
 $solutions = $stmt->fetchAll();
 
-// Logic for updating client notes/data could go here...
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_notes') {
-    $notes = $_POST['notes'];
-    $stmt = $pdo->prepare("UPDATE clients SET notes = ? WHERE id = ?");
-    $stmt->execute([$notes, $client_id]);
-    header("Location: client_view.php?id=$client_id");
-    exit;
+// Logic for updating client notes/data and managing meetings
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if ($_POST['action'] === 'update_notes') {
+        $notes = $_POST['notes'];
+        $stmt = $pdo->prepare("UPDATE clients SET notes = ? WHERE id = ?");
+        $stmt->execute([$notes, $client_id]);
+        header("Location: client_view.php?id=$client_id");
+        exit;
+    } elseif ($_POST['action'] === 'add_meeting') {
+        // Ensure table exists
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS client_meetings (
+                id INT(11) NOT NULL AUTO_INCREMENT,
+                client_id INT(11) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                meeting_date DATE NOT NULL,
+                meeting_time TIME NOT NULL,
+                location VARCHAR(255),
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY idx_client (client_id),
+                CONSTRAINT fk_meeting_client FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (Exception $e) {}
+        
+        $title = trim($_POST['title']);
+        $meeting_date = $_POST['meeting_date'];
+        $meeting_time = $_POST['meeting_time'];
+        $location = trim($_POST['location'] ?? '');
+        $notes = trim($_POST['notes'] ?? '');
+        
+        if ($title && $meeting_date && $meeting_time) {
+            $stmt = $pdo->prepare("INSERT INTO client_meetings (client_id, title, meeting_date, meeting_time, location, notes) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$client_id, $title, $meeting_date, $meeting_time, $location, $notes]);
+        }
+        header("Location: client_view.php?id=$client_id");
+        exit;
+    } elseif ($_POST['action'] === 'delete_meeting') {
+        $meeting_id = $_POST['meeting_id'];
+        $stmt = $pdo->prepare("DELETE FROM client_meetings WHERE id = ? AND client_id = ?");
+        $stmt->execute([$meeting_id, $client_id]);
+        header("Location: client_view.php?id=$client_id");
+        exit;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -290,8 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                         <span><i class="far fa-clock"></i>
                                             <?php echo date('d.m.Y H:i', strtotime($msg['created_at'])); ?>
                                         </span>
-                                        <span <span
-                                            class="badge status-<?php echo $msg['status'] == 'nowa' ? 'pending' : 'success'; ?>">
+                                        <span class="badge status-<?php echo $msg['status'] == 'nowa' ? 'pending' : 'success'; ?>">
                                             <?php echo $msg['status']; ?>
                                         </span>
                                         <?php
@@ -370,6 +411,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 placeholder="Wewnętrzne notatki o kliencie..."><?php echo htmlspecialchars($client['notes']); ?></textarea>
                             <button type="submit" class="btn btn-sm btn-primary"
                                 style="margin-top: 10px; width: 100%;">Zapisz notatkę</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-calendar-alt"></i> Grafik Spotkań</h3>
+                        <div id="schedule-container" style="max-height: 400px; overflow-y: auto;">
+                            <?php
+                            // Fetch meetings for this client
+                            try {
+                                $stmt_meetings = $pdo->prepare("SELECT * FROM client_meetings WHERE client_id = ? ORDER BY meeting_date ASC");
+                                $stmt_meetings->execute([$client_id]);
+                                $meetings = $stmt_meetings->fetchAll();
+                                
+                                if (!empty($meetings)):
+                                    foreach ($meetings as $meeting):
+                            ?>
+                            <div class="meeting-item" style="border-left: 3px solid #9b59b6; padding: 10px; margin-bottom: 10px; background: #f8f9fa; border-radius: 5px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <strong><?php echo htmlspecialchars($meeting['title']); ?></strong>
+                                        <div style="font-size: 0.85rem; color: #7f8c8d;">
+                                            <i class="far fa-calendar"></i> <?php echo date('d.m.Y', strtotime($meeting['meeting_date'])); ?>
+                                            <br>
+                                            <i class="far fa-clock"></i> <?php echo date('H:i', strtotime($meeting['meeting_time'])); ?>
+                                        </div>
+                                        <?php if (!empty($meeting['location'])): ?>
+                                            <div style="font-size: 0.85rem; color: #7f8c8d;">
+                                                <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($meeting['location']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($meeting['notes'])): ?>
+                                            <div style="font-size: 0.85rem; color: #555; margin-top: 5px; font-style: italic;">
+                                                <?php echo htmlspecialchars($meeting['notes']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <form method="POST" style="margin: 0;" onsubmit="return confirm('Usuń to spotkanie?');">
+                                        <input type="hidden" name="action" value="delete_meeting">
+                                        <input type="hidden" name="meeting_id" value="<?php echo $meeting['id']; ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger" style="padding: 5px 10px; font-size: 0.75rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <?php
+                                    endforeach;
+                                else:
+                                    echo '<p style="color: #999; text-align: center; font-size: 0.9rem;">Brak zaplanowanych spotkań</p>';
+                                endif;
+                            } catch (PDOException $e) {
+                                echo '<p style="color: #999; text-align: center; font-size: 0.9rem;">Brak danych spotkań</p>';
+                            }
+                            ?>
+                        </div>
+                        <form method="POST" style="margin-top: 15px;">
+                            <input type="hidden" name="action" value="add_meeting">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <input type="date" name="meeting_date" required style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                                <input type="time" name="meeting_time" value="10:00" required style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                            </div>
+                            <input type="text" name="title" placeholder="Tytuł spotkania" required style="width: 100%; padding: 8px; margin-top: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                            <input type="text" name="location" placeholder="Lokalizacja (opcjonalnie)" style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                            <textarea name="notes" placeholder="Notatki do spotkania" rows="2" style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem; font-family: inherit; resize: vertical;"></textarea>
+                            <button type="submit" class="btn btn-sm btn-success" style="width: 100%; margin-top: 10px;">
+                                <i class="fas fa-plus"></i> Dodaj Spotkanie
+                            </button>
                         </form>
                     </div>
                 </div>

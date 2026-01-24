@@ -232,17 +232,26 @@ if ($type === 'solution') {
                 margin: 10,
                 filename: 'Propozycja_<?php echo $solution['id']; ?>.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, logging: false, useCORS: true, allowTaint: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Hide action bar
+            // Hide action bar before PDF
             const actions = document.querySelector('.actions-bar');
-            actions.style.display = 'none';
+            if (actions) actions.style.display = 'none';
 
             html2pdf().set(opt).from(element).save().then(() => {
-                actions.style.display = 'flex';
+                if (actions) actions.style.display = 'flex';
+            }).catch(err => {
+                if (actions) actions.style.display = 'flex';
+                alert('Błąd przy pobieraniu PDF. Spróbuj: Ctrl+P → Zapisz jako PDF');
+                console.error('PDF Error:', err);
             });
+        }
+
+        // Alternative: Print to PDF using browser's native print function
+        function printToPDF() {
+            window.print();
         }
     </script>
 

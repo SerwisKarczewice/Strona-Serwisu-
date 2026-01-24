@@ -1,5 +1,7 @@
 <?php
 require_once '../config.php';
+define('SILENT_MIGRATION', true);
+require_once 'migration_clients.php';
 
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
@@ -114,6 +116,22 @@ $total_pages = ceil($total_clients / $limit);
             font-size: 0.8rem;
         }
 
+        .client-meetings {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+        }
+
+        .meeting-badge {
+            background: #f0e6ff;
+            color: #8e44ad;
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 2px 5px 2px 0;
+        }
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -187,9 +205,21 @@ $total_pages = ceil($total_clients / $limit);
                         </div>
                     <?php else: ?>
                         <?php foreach ($clients as $client): ?>
+                            <?php
+                            // Fetch upcoming meetings for this client
+                            $stmt_meetings = null;
+                            $upcoming_meetings = [];
+                            try {
+                                $stmt_meetings = $pdo->prepare("SELECT * FROM client_meetings WHERE client_id = ? AND meeting_date >= CURDATE() ORDER BY meeting_date ASC LIMIT 2");
+                                $stmt_meetings->execute([$client['id']]);
+                                $upcoming_meetings = $stmt_meetings->fetchAll();
+                            } catch (Exception $e) {
+                                // Table might not exist yet
+                            }
+                            ?>
                             <div class="client-card" onclick="location.href='client_view.php?id=<?php echo $client['id']; ?>'"
                                 style="cursor: pointer;">
-                                <div class="client-info">
+                                <div class="client-info" style="flex: 1;">
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <h4>
                                             <?php echo htmlspecialchars($client['name']); ?>
@@ -206,6 +236,21 @@ $total_pages = ceil($total_clients / $limit);
                                         <i class="fas fa-phone"></i>
                                         <?php echo htmlspecialchars($client['phone'] ?: 'Brak telefonu'); ?>
                                     </p>
+                                    <?php if (!empty($upcoming_meetings)): ?>
+                                        <div class="client-meetings">
+                                            <i class="fas fa-calendar-check" style="color: #8e44ad; margin-right: 5px;"></i>
+                                            <strong>Nadchodzące spotkania:</strong>
+                                            <?php foreach ($upcoming_meetings as $meeting): ?>
+                                                <span class="meeting-badge">
+                                                    <i class="far fa-calendar"></i>
+                                                    <?php echo date('d.m.Y', strtotime($meeting['meeting_date'])); ?>
+                                                    <i class="far fa-clock" style="margin-left: 5px;"></i>
+                                                    <?php echo date('H:i', strtotime($meeting['meeting_time'])); ?>
+                                                    - <?php echo htmlspecialchars($meeting['title']); ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="client-actions">
                                     <a href="client_view.php?id=<?php echo $client['id']; ?>" class="btn btn-sm btn-secondary"

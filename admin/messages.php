@@ -96,7 +96,6 @@ $clients = $pdo->query("SELECT id, name, phone FROM clients ORDER BY name")->fet
                             <tr>
                                 <th>ID</th>
                                 <th>Imię i Nazwisko</th>
-                                <th>Adres</th>
                                 <th>Telefon</th>
                                 <th>Temat</th>
                                 <th>Data</th>
@@ -109,74 +108,65 @@ $clients = $pdo->query("SELECT id, name, phone FROM clients ORDER BY name")->fet
                                 <tr>
                                     <td><?php echo $msg['id']; ?></td>
                                     <td><?php echo htmlspecialchars($msg['name']); ?></td>
-                                    <td><?php echo $msg['address'] ? htmlspecialchars($msg['address']) : '<em>Nie podano</em>'; ?>
-                                    </td>
                                     <td><a
                                             href="tel:<?php echo htmlspecialchars($msg['phone']); ?>"><?php echo htmlspecialchars($msg['phone']); ?></a>
                                     </td>
                                     <td><?php echo htmlspecialchars($msg['subject']); ?></td>
-                                    <td><?php echo date('d.m.Y H:i', strtotime($msg['created_at'])); ?>
-                                        <?php if (!empty($msg['client_id'])): ?>
-                                            <br><small>
-                                                <a href="client_view.php?id=<?php echo $msg['client_id']; ?>"
-                                                    style="color: #3498db;"><i class="fas fa-user"></i> Klient</a>
-                                                | <a href="solution_editor.php?message_id=<?php echo $msg['id']; ?>"
-                                                    style="color: #27ae60;"><i class="fas fa-file-invoice-dollar"></i>
-                                                    Oferta</a>
-                                            </small>
-                                        <?php else: ?>
-                                            <?php
-                                            // Check for potential matches (Strict Normalization)
-                                            $potential_match = false;
-
-                                            // Helper to normalize phone
-                                            $norm = function ($p) {
-                                                return preg_replace('/[\s\-\(\)]+/', '', $p); };
-                                            $msg_phone_norm = $norm($msg['phone']);
-                                            $msg_name_norm = strtolower(trim($msg['name']));
-
-                                            foreach ($clients as $c) {
-                                                $client_phone_norm = $norm($c['phone']);
-                                                $client_name_norm = strtolower(trim($c['name']));
-
-                                                // Check Phone (if present)
-                                                if (!empty($msg_phone_norm) && !empty($client_phone_norm) && $msg_phone_norm === $client_phone_norm) {
-                                                    $potential_match = true;
-                                                    break;
-                                                }
-                                                // Check Name (if present)
-                                                if (!empty($msg_name_norm) && $msg_name_norm === $client_name_norm) {
-                                                    $potential_match = true;
-                                                    break;
-                                                }
-                                            }
-                                            ?>
-                                            <br><button class="btn-icon"
-                                                style="background:none; border:none; color: <?php echo $potential_match ? '#e67e22' : '#999'; ?>; cursor:pointer;"
-                                                onclick="openAssignModal(<?php echo $msg['id']; ?>, '<?php echo htmlspecialchars(addslashes($msg['name'])); ?>', '<?php echo htmlspecialchars(addslashes($msg['phone'])); ?>')"
-                                                title="<?php echo $potential_match ? 'Znaleziono pasującego klienta - kliknij aby przypisać' : 'Przypisz do klienta'; ?>">
-                                                <i
-                                                    class="fas <?php echo $potential_match ? 'fa-user-check' : 'fa-user-plus'; ?>"></i>
-                                                <?php if ($potential_match): ?><span
-                                                        style="font-size:0.7rem; font-weight:bold;">
-                                                        !</span><?php endif; ?>
-                                            </button>
-                                        <?php endif; ?>
-                                    </td>
+                                    <td><?php echo date('d.m.Y H:i', strtotime($msg['created_at'])); ?></td>
                                     <td>
                                         <span class="status-badge <?php echo $msg['status']; ?>">
                                             <?php echo ucfirst($msg['status']); ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="action-buttons">
-                                            <a href="view_message.php?id=<?php echo $msg['id']; ?>" class="btn-icon"
-                                                title="Zobacz">
+                                        <div class="action-buttons" style="display: flex; gap: 8px; align-items: center;">
+                                            <?php if (!empty($msg['client_id'])): ?>
+                                                <a href="client_view.php?id=<?php echo $msg['client_id']; ?>" class="btn-icon" title="Profil klienta" style="color: #3498db;">
+                                                    <i class="fas fa-user"></i>
+                                                </a>
+                                                <a href="solution_editor.php?message_id=<?php echo $msg['id']; ?>" class="btn-icon" title="Oferta" style="color: #27ae60;">
+                                                    <i class="fas fa-file-invoice-dollar"></i>
+                                                </a>
+                                            <?php else: ?>
+                                                <?php
+                                                // Check for potential matches (Strict Normalization)
+                                                $potential_match = false;
+
+                                                // Helper to normalize phone
+                                                $norm = function ($p) {
+                                                    return preg_replace('/[\s\-\(\)]+/', '', $p);
+                                                };
+                                                $msg_phone_norm = $norm($msg['phone']);
+                                                $msg_name_norm = strtolower(trim($msg['name']));
+
+                                                foreach ($clients as $c) {
+                                                    $client_phone_norm = $norm($c['phone']);
+                                                    $client_name_norm = strtolower(trim($c['name']));
+
+                                                    // Check Phone (if present)
+                                                    if (!empty($msg_phone_norm) && !empty($client_phone_norm) && $msg_phone_norm === $client_phone_norm) {
+                                                        $potential_match = true;
+                                                        break;
+                                                    }
+                                                    // Check Name (if present)
+                                                    if (!empty($msg_name_norm) && $msg_name_norm === $client_name_norm) {
+                                                        $potential_match = true;
+                                                        break;
+                                                    }
+                                                }
+                                                ?>
+                                                <button class="btn-icon"
+                                                    style="background:none; border:none; color: <?php echo $potential_match ? '#e67e22' : '#2ecc71'; ?>; cursor:pointer;"
+                                                    onclick="openAssignModal(<?php echo $msg['id']; ?>, '<?php echo htmlspecialchars(addslashes($msg['name'])); ?>', '<?php echo htmlspecialchars(addslashes($msg['phone'])); ?>')"
+                                                    title="<?php echo $potential_match ? 'Znaleziono pasującego klienta - kliknij aby przypisać' : 'Przypisz do klienta'; ?>">
+                                                    <i class="fas <?php echo $potential_match ? 'fa-user-check' : 'fa-user-plus'; ?>"></i>
+                                                </button>
+                                            <?php endif; ?>
+
+                                            <a href="view_message.php?id=<?php echo $msg['id']; ?>" class="btn-icon" title="Zobacz">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="delete_message.php?id=<?php echo $msg['id']; ?>"
-                                                class="btn-icon delete" title="Usuń"
-                                                onclick="return confirm('Czy na pewno chcesz usunąć tę wiadomość?')">
+                                            <a href="delete_message.php?id=<?php echo $msg['id']; ?>" class="btn-icon delete" title="Usuń" onclick="return confirm('Czy na pewno chcesz usunąć tę wiadomość?')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
