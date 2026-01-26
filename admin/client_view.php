@@ -234,15 +234,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         .info-row {
             display: flex;
-            margin-bottom: 10px;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 5px;
+            margin-bottom: 12px;
+            padding-bottom: 2px;
         }
 
         .info-label {
-            width: 100px;
+            width: 80px;
             font-weight: bold;
             color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .info-value a {
+            text-decoration: none;
+            color: #ff6b35;
+            transition: color 0.2s;
+        }
+
+        .info-value a:hover {
+            color: #f7931e;
+            text-decoration: underline;
         }
 
         .info-value {
@@ -275,10 +286,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <?php include 'includes/sidebar.php'; ?>
 
         <main class="main-content">
-            <header class="content-header">
-                <h1>Profil Klienta</h1>
-                <a href="clients.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Powrót</a>
+            <header class="content-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Profil Klienta: <?php echo htmlspecialchars($client['name']); ?></h1>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="clients.php" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Powrót do listy
+                    </a>
+                    <a href="delete_client.php?id=<?php echo $client_id; ?>" class="btn btn-danger"
+                        onclick="return confirm('Czy na pewno chcesz usunąć tego klienta oraz wszystkie jego powiązane dane (spotkania, oferty)?')"
+                        style="background: #e74c3c; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; font-weight: 600;">
+                        <i class="fas fa-trash"></i> Usuń Klienta
+                    </a>
+                </div>
             </header>
+
+            <?php if (isset($_GET['success'])): ?>
+                <div class="alert alert-success"
+                    style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                    <i class="fas fa-check-circle"></i>
+                    <?php
+                    if ($_GET['success'] === 'solution_deleted')
+                        echo "Pomyślnie usunięto ofertę.";
+                    elseif ($_GET['success'] === 'updated')
+                        echo "Zaktualizowano dane klienta.";
+                    else
+                        echo "Operacja zakończona sukcesem.";
+                    ?>
+                </div>
+            <?php endif; ?>
 
             <!-- Profile Header -->
             <div class="profile-header">
@@ -347,6 +384,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                                 Drukuj</a>
                                             <a href="solution_editor.php?id=<?php echo $sol['id']; ?>"
                                                 class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Edytuj</a>
+                                            <a href="delete_solution.php?id=<?php echo $sol['id']; ?>"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Czy na pewno chcesz usunąć to rozwiązanie?')"
+                                                style="background: #e74c3c; color: white;">
+                                                <i class="fas fa-trash"></i> Usuń</a>
                                         </div>
                                     </div>
                                 </div>
@@ -413,15 +455,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         <h3>Dane Kontaktowe</h3>
                         <div class="info-row">
                             <span class="info-label">Email:</span>
-                            <span class="info-value"><a href="mailto:<?php echo $client['email']; ?>">
-                                    <?php echo htmlspecialchars($client['email']); ?>
-                                </a></span>
+                            <span class="info-value">
+                                <?php echo htmlspecialchars($client['email']); ?>
+                            </span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Telefon:</span>
-                            <span class="info-value"><a href="tel:<?php echo $client['phone']; ?>">
-                                    <?php echo htmlspecialchars($client['phone']); ?>
-                                </a></span>
+                            <span class="info-value">
+                                <?php echo htmlspecialchars($client['phone']); ?>
+                            </span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Adres:</span>

@@ -135,15 +135,39 @@ try {
     // Najpierw spróbujmy dopasować klienta
     $client_id = find_client_by_identity($pdo, $name, $phone, $email);
 
+    // AUTO-UPDATE: Jeśli klient istnieje, ale nie ma adresu/emaila w profilu, uzupełnij go danymi z wiadomości
+    if ($client_id) {
+        $stmt_check = $pdo->prepare("SELECT email, address FROM clients WHERE id = ?");
+        $stmt_check->execute([$client_id]);
+        $client_info = $stmt_check->fetch();
+
+        $updates = [];
+        $u_params = [];
+        if (empty($client_info['email']) && !empty($email)) {
+            $updates[] = "email = ?";
+            $u_params[] = $email;
+        }
+        if (empty($client_info['address']) && !empty($address)) {
+            $updates[] = "address = ?";
+            $u_params[] = $address;
+        }
+
+        if (!empty($updates)) {
+            $u_params[] = $client_id;
+            $pdo->prepare("UPDATE clients SET " . implode(', ', $updates) . " WHERE id = ?")->execute($u_params);
+        }
+    }
+
     $stmt = $pdo->prepare("
-        INSERT INTO contact_messages (client_id, name, phone, address, subject, message, created_at) 
-        VALUES (:client_id, :name, :phone, :address, :subject, :message, NOW())
+        INSERT INTO contact_messages (client_id, name, phone, email, address, subject, message, created_at) 
+        VALUES (:client_id, :name, :phone, :email, :address, :subject, :message, NOW())
     ");
 
     $stmt->execute([
         ':client_id' => $client_id,
         ':name' => $name,
         ':phone' => $phone,
+        ':email' => !empty($email) ? $email : null,
         ':address' => !empty($address) ? $address : null,
         ':subject' => $subject,
         ':message' => $message_content

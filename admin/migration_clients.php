@@ -15,6 +15,14 @@ try {
             echo "Column client_id already exists in contact_messages.<br>";
     }
 
+    // 1b. Add email to contact_messages if not exists
+    $columns = $pdo->query("SHOW COLUMNS FROM contact_messages LIKE 'email'")->fetchAll();
+    if (empty($columns)) {
+        $pdo->exec("ALTER TABLE contact_messages ADD COLUMN email VARCHAR(255) DEFAULT NULL AFTER phone");
+        if (!defined('SILENT_MIGRATION'))
+            echo "Added email to contact_messages.<br>";
+    }
+
     // 2. Create client_solutions table
     $pdo->exec("CREATE TABLE IF NOT EXISTS client_solutions (
         id INT(11) NOT NULL AUTO_INCREMENT,
@@ -34,7 +42,7 @@ try {
         CONSTRAINT fk_solution_client FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
         CONSTRAINT fk_solution_message FOREIGN KEY (message_id) REFERENCES contact_messages(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    
+
     // Add description column if it doesn't exist
     $desc_columns = $pdo->query("SHOW COLUMNS FROM client_solutions LIKE 'description'")->fetchAll();
     if (empty($desc_columns)) {
@@ -42,7 +50,7 @@ try {
         if (!defined('SILENT_MIGRATION'))
             echo "Added description to client_solutions.<br>";
     }
-    
+
     if (!defined('SILENT_MIGRATION'))
         echo "Created/verified client_solutions table.<br>";
 

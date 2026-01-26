@@ -17,18 +17,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($client_id === 'new') {
             $name = trim($_POST['new_client_name']);
             $phone = trim($_POST['new_client_phone']);
+            $email = trim($_POST['new_client_email'] ?? '');
+            $address = trim($_POST['new_client_address'] ?? '');
 
             // DEDUPLICATION LOOKUP
-            $existing_client = find_client_by_identity($pdo, $name, $phone);
+            $existing_client = find_client_by_identity($pdo, $name, $phone, $email);
 
             if ($existing_client) {
                 // Use existing client
                 $client_id = $existing_client;
             } else {
                 // Create new only if not found
-                $stmt = $pdo->prepare("INSERT INTO clients (name, phone, created_at) VALUES (?, ?, NOW())");
-                $stmt->execute([$name, $phone]);
+                $stmt = $pdo->prepare("INSERT INTO clients (name, phone, email, address, created_at) VALUES (?, ?, ?, ?, NOW())");
+                $stmt->execute([$name, $phone, $email, $address]);
                 $client_id = $pdo->lastInsertId();
+            }
+        } else {
+            // IF EXSTING CLIENT: Update missing address/email if provided in message
+            $email = trim($_POST['new_client_email'] ?? '');
+            $address = trim($_POST['new_client_address'] ?? '');
+
+            if ($email || $address) {
+                $stmt = $pdo->prepare("SELECT email, address FROM clients WHERE id = ?");
+                $stmt->execute([$client_id]);
+                $curr = $stmt->fetch();
+
+                $updates = [];
+                $params = [];
+                if (empty($curr['email']) && $email) {
+                    $updates[] = "email = ?";
+                    $params[] = $email;
+                }
+                if (empty($curr['address']) && $address) {
+                    $updates[] = "address = ?";
+                    $params[] = $address;
+                }
+
+                if ($updates) {
+                    $params[] = $client_id;
+                    $pdo->prepare("UPDATE clients SET " . implode(', ', $updates) . " WHERE id = ?")->execute($params);
+                }
             }
         }
 
@@ -116,7 +144,7 @@ $clients = $pdo->query("SELECT id, name, phone FROM clients ORDER BY name")->fet
                                                 ?>
                                                 <button class="btn-icon"
                                                     style="background:none; border:none; color: <?php echo $potential_match ? '#e67e22' : '#2ecc71'; ?>; cursor:pointer;"
-                                                    onclick="openAssignModal(<?php echo $msg['id']; ?>, '<?php echo htmlspecialchars(addslashes($msg['name'])); ?>', '<?php echo htmlspecialchars(addslashes($msg['phone'])); ?>')"
+                                                    onclick="openAssignModal(<?php echo $msg['id']; ?>, '<?php echo htmlspecialchars(addslashes($msg['name'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($msg['phone'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($msg['email'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($msg['address'] ?? '')); ?>')"
                                                     title="<?php echo $potential_match ? 'Znaleziono pasującego klienta - kliknij aby przypisać' : 'Przypisz do klienta'; ?>">
                                                     <i
                                                         class="fas <?php echo $potential_match ? 'fa-user-check' : 'fa-user-plus'; ?>"></i>
@@ -157,6 +185,8 @@ $clients = $pdo->query("SELECT id, name, phone FROM clients ORDER BY name")->fet
                 <input type="hidden" name="msg_id" id="assign_msg_id">
                 <input type="hidden" name="new_client_name" id="new_client_name">
                 <input type="hidden" name="new_client_phone" id="new_client_phone">
+                <input type="hidden" name="new_client_email" id="new_client_email">
+                <input type="hidden" name="new_client_address" id="new_client_address">
 
                 <div style="margin: 15px 0;">
                     <label style="display:block; margin-bottom:5px;">Wybierz klienta:</label>
@@ -174,11 +204,13 @@ $clients = $pdo->query("SELECT id, name, phone FROM clients ORDER BY name")->fet
     </div>
 
     <script>
-        function openAssignModal(id, name, phone) {
+        function openAssignModal(id, name, phone, email, address) {
             document.getElementById('assignModal').style.display = 'block';
             document.getElementById('assign_msg_id').value = id;
             document.getElementById('new_client_name').value = name;
             document.getElementById('new_client_phone').value = phone;
+            document.getElementById('new_client_email').value = email;
+            document.getElementById('new_client_address').value = address;
         }
     </script>
 </body>

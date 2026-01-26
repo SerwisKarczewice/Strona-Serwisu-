@@ -249,6 +249,12 @@ $total_pages = ceil($total_clients / $limit);
                                         title="Szczegóły">
                                         <i class="fas fa-arrow-right"></i>
                                     </a>
+                                    <a href="delete_client.php?id=<?php echo $client['id']; ?>" class="btn btn-sm btn-danger"
+                                        title="Usuń Klienta"
+                                        onclick="return confirm('Czy na pewno chcesz usunąć tego klienta? Wszystkie jego rozwiązania i spotkania zostaną również usunięte.')"
+                                        style="background: #e74c3c; color: white;">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
                                 </div>
                             </div>
                         <?php endforeach; ?>

@@ -527,6 +527,227 @@ $services = $stmt->fetchAll();
                 flex-wrap: wrap;
             }
         }
+
+        /* Stylizacja wyboru usług (Dropdown-based) */
+        .service-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f1f3f6;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: var(--white);
+            color: var(--primary-color);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .select-row-premium {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            position: relative;
+        }
+
+        .custom-dropdown {
+            position: relative;
+            flex: 1;
+            user-select: none;
+        }
+
+        .dropdown-trigger {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 2px solid #edeff2;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .custom-dropdown.active .dropdown-trigger {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+        }
+
+        .dropdown-trigger i {
+            color: var(--primary-color);
+            transition: transform 0.3s;
+        }
+
+        .custom-dropdown.active .dropdown-trigger i {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-list {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid #eee;
+            z-index: 1000;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .custom-dropdown.active .dropdown-list {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-option {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover {
+            background: #fff5f2;
+            color: var(--primary-color);
+            padding-left: 25px;
+        }
+
+        .dropdown-option .icon {
+            width: 30px;
+            display: flex;
+            justify-content: center;
+            color: #ccc;
+            transition: color 0.2s;
+        }
+
+        .dropdown-option:hover .icon {
+            color: var(--primary-color);
+        }
+
+        .dropdown-option.selected {
+            background: #f1f3f6;
+            font-weight: 600;
+        }
+
+        /* Custom Scrollbar for dropdown */
+        .dropdown-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .dropdown-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .dropdown-list::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 10px;
+        }
+        .dropdown-list::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        .btn-add-item {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-add-item:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+        }
+
+        .selected-services-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            min-height: 40px;
+        }
+
+        .service-chip {
+            background: #2c3e50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: chipFadeIn 0.3s ease-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes chipFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .service-chip button {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0;
+            display: flex;
+            transition: color 0.2s;
+        }
+
+        .service-chip button:hover {
+            color: #fff;
+        }
     </style>
 
 <body>
@@ -672,12 +893,12 @@ $services = $stmt->fetchAll();
                             <textarea id="message" name="message" rows="6" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="service">Interesujące Cię Usługi/Produkty</label>
+                            <label>Wybierz usługi lub produkty</label>
 
-                            <!-- Zakładki -->
+                            <!-- Ulepszone Zakładki -->
                             <div class="service-tabs">
                                 <button type="button" class="tab-btn active" onclick="switchTab('single')">
-                                    <i class="fas fa-wrench"></i> Usługi Pojedyncze
+                                    <i class="fas fa-wrench"></i> Usługi
                                 </button>
                                 <button type="button" class="tab-btn" onclick="switchTab('package')">
                                     <i class="fas fa-box"></i> Pakiety
@@ -689,63 +910,81 @@ $services = $stmt->fetchAll();
 
                             <!-- Sekcja Usług Pojedynczych -->
                             <div class="tab-content active" id="tab-single">
-                                <div class="select-row">
-                                    <select id="select-single">
-                                        <option value="">-- Wybierz usługę --</option>
-                                        <?php foreach ($services as $s): ?>
-                                            <?php if (isset($s['category']) && $s['category'] == 'single'): ?>
-                                                <option value="service_<?php echo $s['id']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($s['name']); ?>">
-                                                    <?php echo htmlspecialchars($s['name']); ?>
-                                                </option>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button type="button" class="btn btn-secondary" onclick="addItem('single')">
-                                        <i class="fas fa-plus"></i>
+                                <div class="select-row-premium">
+                                    <div class="custom-dropdown" id="dropdown-single">
+                                        <div class="dropdown-trigger">
+                                            <span>-- Wybierz usługę z listy --</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="dropdown-list">
+                                            <?php foreach ($services as $s): ?>
+                                                <?php if (isset($s['category']) && $s['category'] == 'single'): ?>
+                                                    <div class="dropdown-option" data-value="service_<?php echo $s['id']; ?>"
+                                                        data-name="<?php echo htmlspecialchars($s['name']); ?>">
+                                                        <i class="fas fa-wrench icon"></i>
+                                                        <span><?php echo htmlspecialchars($s['name']); ?></span>
+                                                    </div>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-add-item" onclick="addItemFromDropdown('single')">
+                                        <i class="fas fa-plus"></i> Dodaj
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Sekcja Pakietów -->
                             <div class="tab-content" id="tab-package">
-                                <div class="select-row">
-                                    <select id="select-package">
-                                        <option value="">-- Wybierz pakiet --</option>
-                                        <?php foreach ($services as $s): ?>
-                                            <?php if (isset($s['category']) && $s['category'] == 'package'): ?>
-                                                <option value="service_<?php echo $s['id']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($s['name']); ?>">
-                                                    <?php echo htmlspecialchars($s['name']); ?>
-                                                </option>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button type="button" class="btn btn-secondary" onclick="addItem('package')">
-                                        <i class="fas fa-plus"></i>
+                                <div class="select-row-premium">
+                                    <div class="custom-dropdown" id="dropdown-package">
+                                        <div class="dropdown-trigger">
+                                            <span>-- Wybierz pakiet z listy --</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="dropdown-list">
+                                            <?php foreach ($services as $s): ?>
+                                                <?php if (isset($s['category']) && $s['category'] == 'package'): ?>
+                                                    <div class="dropdown-option" data-value="service_<?php echo $s['id']; ?>"
+                                                        data-name="<?php echo htmlspecialchars($s['name']); ?>">
+                                                        <i class="fas fa-box icon"></i>
+                                                        <span><?php echo htmlspecialchars($s['name']); ?></span>
+                                                    </div>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-add-item" onclick="addItemFromDropdown('package')">
+                                        <i class="fas fa-plus"></i> Dodaj
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Sekcja Produktów -->
                             <div class="tab-content" id="tab-product">
-                                <div class="select-row">
-                                    <select id="select-product">
-                                        <option value="">-- Wybierz produkt --</option>
-                                        <?php foreach ($products as $p): ?>
-                                            <option value="product_<?php echo $p['id']; ?>"
-                                                data-name="<?php echo htmlspecialchars($p['name']); ?>">
-                                                <?php echo htmlspecialchars($p['name']); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button type="button" class="btn btn-secondary" onclick="addItem('product')">
-                                        <i class="fas fa-plus"></i>
+                                <div class="select-row-premium">
+                                    <div class="custom-dropdown" id="dropdown-product">
+                                        <div class="dropdown-trigger">
+                                            <span>-- Wybierz produkt z listy --</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="dropdown-list">
+                                            <?php foreach ($products as $p): ?>
+                                                <div class="dropdown-option" data-value="product_<?php echo $p['id']; ?>"
+                                                    data-name="<?php echo htmlspecialchars($p['name']); ?>">
+                                                    <i class="fas fa-shopping-cart icon"></i>
+                                                    <span><?php echo htmlspecialchars($p['name']); ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-add-item" onclick="addItemFromDropdown('product')">
+                                        <i class="fas fa-plus"></i> Dodaj
                                     </button>
                                 </div>
                             </div>
 
-                            <div id="selectedServices" class="selected-services"></div>
+                            <div id="selectedServices" class="selected-services-container"></div>
                             <input type="hidden" id="selectedServicesHidden" name="selected_services" value="">
                         </div>
                         <div class="form-group checkbox-group">
@@ -783,58 +1022,112 @@ $services = $stmt->fetchAll();
     <script src="js/main.js" defer></script>
 
     <script>
-        // Przełączanie zakładek
+        let selectedItems = {};
+        let currentSelections = { single: null, package: null, product: null };
+
+        // Obsługa rozwijanych list
+        document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+            const trigger = dropdown.querySelector('.dropdown-trigger');
+            const list = dropdown.querySelector('.dropdown-list');
+            const options = dropdown.querySelectorAll('.dropdown-option');
+            const type = dropdown.id.split('-')[1];
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Zamknij inne listy
+                document.querySelectorAll('.custom-dropdown').forEach(other => {
+                    if (other !== dropdown) other.classList.remove('active');
+                });
+                dropdown.classList.toggle('active');
+            });
+
+            options.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const value = option.getAttribute('data-value');
+                    const name = option.getAttribute('data-name');
+                    
+                    // Update state
+                    currentSelections[type] = { id: value, name: name };
+                    
+                    // Update UI
+                    trigger.querySelector('span').innerText = name;
+                    dropdown.classList.remove('active');
+                    
+                    // Mark as selected
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+        });
+
+        // Zamknij listy przy kliknięciu poza nimi
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        });
+
         function switchTab(tabName) {
-            // Usuń active z przycisków
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            // Usuń active z contentu
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-            // Dodaj active
+            // Reset other dropdowns visually? (optional)
+            
             event.target.closest('.tab-btn').classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
         }
 
-        // Przechowywanie wybranych elementów
-        let selectedItems = {};
-
-        // Dodawanie elementu
-        function addItem(type) {
-            const select = document.getElementById('select-' + type);
-            if (!select.value) return;
-
-            const value = select.value;
-            const name = select.options[select.selectedIndex].getAttribute('data-name');
-
-            if (selectedItems[value]) {
-                alert('Ten element jest już dodany!');
+        function addItemFromDropdown(type) {
+            const selection = currentSelections[type];
+            if (!selection) {
+                alert('Proszę najpierw wybrać element z listy.');
                 return;
             }
 
-            selectedItems[value] = name;
+            const id = selection.id;
+            const name = selection.name;
+
+            if (selectedItems[id]) {
+                alert('To już zostało wybrane!');
+                return;
+            }
+
+            selectedItems[id] = { name, type };
             updateChips();
-            select.value = '';
+            
+            // Reset dropdown visual state
+            const dropdown = document.getElementById('dropdown-' + type);
+            const placeholder = type === 'single' ? 'usługę' : (type === 'package' ? 'pakiet' : 'produkt');
+            dropdown.querySelector('.dropdown-trigger span').innerText = `-- Wybierz ${placeholder} z listy --`;
+            dropdown.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+            currentSelections[type] = null;
         }
 
-        // Aktualizacja chipsów
+        function removeItem(id) {
+            delete selectedItems[id];
+            updateChips();
+        }
+
         function updateChips() {
             const container = document.getElementById('selectedServices');
             const hidden = document.getElementById('selectedServicesHidden');
 
             container.innerHTML = '';
 
-            Object.keys(selectedItems).forEach(key => {
+            Object.keys(selectedItems).forEach(id => {
+                const item = selectedItems[id];
                 const chip = document.createElement('div');
                 chip.className = 'service-chip';
 
                 let icon = 'fa-wrench';
-                if (key.startsWith('product_')) icon = 'fa-shopping-cart';
-                else if (key.includes('package')) icon = 'fa-box';
+                if (item.type === 'product') icon = 'fa-shopping-cart';
+                else if (item.type === 'package') icon = 'fa-box';
 
                 chip.innerHTML = `
                     <i class="fas ${icon}"></i>
-                    ${selectedItems[key]}
-                    <button type="button" onclick="removeItem('${key}')">
+                    <span>${item.name}</span>
+                    <button type="button" onclick="removeItem('${id}')">
                         <i class="fas fa-times"></i>
                     </button>
                 `;
@@ -842,12 +1135,6 @@ $services = $stmt->fetchAll();
             });
 
             hidden.value = Object.keys(selectedItems).join(',');
-        }
-
-        // Usuwanie elementu
-        function removeItem(key) {
-            delete selectedItems[key];
-            updateChips();
         }
     </script>
 
