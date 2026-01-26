@@ -36,8 +36,12 @@ if ($type === 'solution') {
         die('Rozwiązanie nie istnieje');
     $items = json_decode($solution['items_json'], true);
 
-    // -- STANDARD PROFESSIONAL PDF DESIGN FOR PROPOSALS --
-    // Matches the application's clean aesthetic without being over-designed.
+    // Helper function to force wrap text for PDF
+    function format_pdf_text($text, $width = 60)
+    {
+        // Use wordwrap with cut=true to force break long words
+        return nl2br(htmlspecialchars(wordwrap($text, $width, "\n", true)));
+    }
     ?>
     <!DOCTYPE html>
     <html lang="pl">
@@ -55,6 +59,12 @@ if ($type === 'solution') {
                 font-size: 14px;
             }
 
+            /* CSS Fallbacks */
+            * {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+
             .container {
                 max-width: 800px;
                 margin: 0 auto;
@@ -62,6 +72,19 @@ if ($type === 'solution') {
                 padding: 40px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
             }
+
+            /* ... existing styles ... */
+
+            /* Description */
+            .description {
+                margin-bottom: 30px;
+                line-height: 1.6;
+                color: #444;
+                width: 100%;
+            }
+
+            /* ... */
+
 
             /* Header */
             .header {
@@ -353,7 +376,7 @@ if ($type === 'solution') {
 
             <div class="description">
                 <strong><?php echo htmlspecialchars($solution['title']); ?></strong>
-                <?php echo nl2br(htmlspecialchars($solution['description'])); ?>
+                <?php echo format_pdf_text($solution['description'], 90); ?>
             </div>
 
             <table>
@@ -371,7 +394,7 @@ if ($type === 'solution') {
                         <tr>
                             <td style="color: #999;"><?php echo $i++; ?></td>
                             <td>
-                                <strong><?php echo htmlspecialchars($item['name']); ?></strong>
+                                <strong><?php echo format_pdf_text($item['name'], 50); ?></strong>
                             </td>
                             <td style="font-size: 12px; color: #7f8c8d;">
                                 <?php

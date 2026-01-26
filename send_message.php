@@ -5,6 +5,7 @@ error_reporting(0);
 ini_set('display_errors', 0);
 
 require_once 'config.php';
+require_once 'includes/client_utils.php';
 
 // Funkcja pomocnicza do powrotu i wyświetlenia komunikatu
 function redirect_back($status, $message, $type = '')
@@ -131,12 +132,16 @@ try {
     }
 
     // Zapis do bazy danych
+    // Najpierw spróbujmy dopasować klienta
+    $client_id = find_client_by_identity($pdo, $name, $phone, $email);
+
     $stmt = $pdo->prepare("
-        INSERT INTO contact_messages (name, phone, address, subject, message, created_at) 
-        VALUES (:name, :phone, :address, :subject, :message, NOW())
+        INSERT INTO contact_messages (client_id, name, phone, address, subject, message, created_at) 
+        VALUES (:client_id, :name, :phone, :address, :subject, :message, NOW())
     ");
 
     $stmt->execute([
+        ':client_id' => $client_id,
         ':name' => $name,
         ':phone' => $phone,
         ':address' => !empty($address) ? $address : null,

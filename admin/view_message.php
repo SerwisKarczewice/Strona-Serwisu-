@@ -39,7 +39,7 @@ if ($message['status'] === 'nowa') {
 
 <body>
     <div class="admin-wrapper">
-     <?php include 'includes/sidebar.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
 
         <main class="main-content">
             <header class="content-header">
@@ -176,6 +176,14 @@ if ($message['status'] === 'nowa') {
         line-height: 1.8;
         color: #666;
         font-size: 1.05rem;
+        white-space: pre-wrap;
+        /* Zachowuje spacje i łamanie linii, ale zawija tekst */
+        word-wrap: break-word;
+        /* Stara nazwa overflow-wrap */
+        overflow-wrap: break-word;
+        /* Łamie długie słowa, żeby nie wychodziły poza kontener */
+        max-width: 100%;
+        /* Zapobiega wypychaniu */
     }
 
     .message-actions {

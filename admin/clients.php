@@ -1,5 +1,6 @@
 <?php
 require_once '../config.php';
+require_once '../includes/client_utils.php';
 define('SILENT_MIGRATION', true);
 require_once 'migration_clients.php';
 
@@ -20,16 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     if ($name) {
         // Dedup Check
-        $phone_norm = preg_replace('/[\s\-\(\)]+/', '', $phone);
-
-        // Complex WHERE clause for cleaned phone matching
-        $sql = "SELECT id FROM clients 
-                WHERE (REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '(', ''), ')', '') = ? AND phone != '') 
-                OR (email = ? AND email != '')";
-
-        $check = $pdo->prepare($sql);
-        $check->execute([$phone_norm, $email]);
-        if ($check->fetchColumn()) {
+        if (find_client_by_identity($pdo, '', $phone, $email)) {
             header('Location: clients.php?error=duplicate');
             exit;
         }

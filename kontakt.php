@@ -181,22 +181,38 @@ $services = $stmt->fetchAll();
         .form-contact {
             display: flex;
             flex-direction: column;
-            gap: 22px;
+            gap: 15px;
+            /* Reduced from 22px */
+        }
+
+        .form-row-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row-compact {
+                grid-template-columns: 1fr;
+            }
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.2rem;
+            /* Significantly reduced */
             width: 100%;
             box-sizing: border-box;
         }
 
         .form-group label {
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.4rem;
+            /* Reduced label margin */
             font-weight: 600;
             color: var(--text-dark);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            /* Slightly smaller font */
             display: flex;
             align-items: center;
             gap: 0.4rem;
@@ -205,7 +221,8 @@ $services = $stmt->fetchAll();
         .form-group input,
         .form-group textarea,
         .form-group select {
-            padding: 1.1rem 1.3rem;
+            padding: 0.8rem 1rem;
+            /* Reduced padding */
             border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 0.95rem;
@@ -625,22 +642,26 @@ $services = $stmt->fetchAll();
                                 });
                             </script>
                         <?php endif; ?>
-                        <div class="form-group">
-                            <label for="name">Imię i Nazwisko *</label>
-                            <input type="text" id="name" name="name" required>
+                        <div class="form-row-compact">
+                            <div class="form-group">
+                                <label for="name">Imię i Nazwisko *</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Numer Telefonu *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="address">Adres Zamieszkania</label>
-                            <input type="text" id="address" name="address"
-                                placeholder="np. ul. Przykładowa 123, 00-001 Twoja miejscowość">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Numer Telefonu *</label>
-                            <input type="tel" id="phone" name="phone" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email (opcjonalnie)</label>
-                            <input type="email" id="email" name="email" placeholder="Twój adres email">
+                        <div class="form-row-compact">
+                            <div class="form-group">
+                                <label for="address">Adres Zamieszkania</label>
+                                <input type="text" id="address" name="address"
+                                    placeholder="np. ul. Przykładowa 123, 00-001 Twoja miejscowość">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email (opcjonalnie)</label>
+                                <input type="email" id="email" name="email" placeholder="Twój adres email">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="subject">Temat Wiadomości *</label>

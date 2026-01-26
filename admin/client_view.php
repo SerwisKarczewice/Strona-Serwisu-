@@ -63,14 +63,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 KEY idx_client (client_id),
                 CONSTRAINT fk_meeting_client FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-        } catch (Exception $e) {}
-        
+        } catch (Exception $e) {
+        }
+
         $title = trim($_POST['title']);
         $meeting_date = $_POST['meeting_date'];
         $meeting_time = $_POST['meeting_time'];
         $location = trim($_POST['location'] ?? '');
         $notes = trim($_POST['notes'] ?? '');
-        
+
         if ($title && $meeting_date && $meeting_time) {
             $stmt = $pdo->prepare("INSERT INTO client_meetings (client_id, title, meeting_date, meeting_time, location, notes) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$client_id, $title, $meeting_date, $meeting_time, $location, $notes]);
@@ -83,6 +84,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $stmt->execute([$meeting_id, $client_id]);
         header("Location: client_view.php?id=$client_id");
         exit;
+    } elseif ($_POST['action'] === 'update_client') {
+        $name = trim($_POST['name']);
+        $email = trim($_POST['email']);
+        $phone = trim($_POST['phone']);
+        $address = trim($_POST['address']);
+        $company = trim($_POST['company_name']);
+        $nip = trim($_POST['nip']);
+
+        if ($name) {
+            $stmt = $pdo->prepare("UPDATE clients SET name = ?, email = ?, phone = ?, address = ?, company_name = ?, nip = ? WHERE id = ?");
+            $stmt->execute([$name, $email, $phone, $address, $company, $nip, $client_id]);
+            header("Location: client_view.php?id=$client_id&success=updated");
+            exit;
+        }
     }
 }
 ?>
@@ -233,6 +248,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         .info-value {
             color: #2c3e50;
             flex: 1;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+
+        /* Fix for message content wrapping */
+        .message-item p {
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        /* Fix for solution items wrapping */
+        .solution-item {
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -282,9 +315,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             style="flex: 1; text-align: center;">
                             <i class="fas fa-file-invoice-dollar"></i> Stwórz Proponowane Rozwiązanie
                         </a>
-                        <a href="#" class="btn btn-secondary" style="flex: 1; text-align: center;">
-                            <i class="fas fa-file-pdf"></i> Raport PDF
-                        </a>
+                        <button onclick="openEditModal()" class="btn btn-secondary"
+                            style="flex: 1; text-align: center;">
+                            <i class="fas fa-user-edit"></i> Edytuj Dane
+                        </button>
                     </div>
 
                     <!-- Client Solutions -->
@@ -332,7 +366,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                         <span><i class="far fa-clock"></i>
                                             <?php echo date('d.m.Y H:i', strtotime($msg['created_at'])); ?>
                                         </span>
-                                        <span class="badge status-<?php echo $msg['status'] == 'nowa' ? 'pending' : 'success'; ?>">
+                                        <span
+                                            class="badge status-<?php echo $msg['status'] == 'nowa' ? 'pending' : 'success'; ?>">
                                             <?php echo $msg['status']; ?>
                                         </span>
                                         <?php
@@ -423,40 +458,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                 $stmt_meetings = $pdo->prepare("SELECT * FROM client_meetings WHERE client_id = ? ORDER BY meeting_date ASC");
                                 $stmt_meetings->execute([$client_id]);
                                 $meetings = $stmt_meetings->fetchAll();
-                                
+
                                 if (!empty($meetings)):
                                     foreach ($meetings as $meeting):
-                            ?>
-                            <div class="meeting-item" style="border-left: 3px solid #9b59b6; padding: 10px; margin-bottom: 10px; background: #f8f9fa; border-radius: 5px;">
-                                <div style="display: flex; justify-content: space-between; align-items: start;">
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($meeting['title']); ?></strong>
-                                        <div style="font-size: 0.85rem; color: #7f8c8d;">
-                                            <i class="far fa-calendar"></i> <?php echo date('d.m.Y', strtotime($meeting['meeting_date'])); ?>
-                                            <br>
-                                            <i class="far fa-clock"></i> <?php echo date('H:i', strtotime($meeting['meeting_time'])); ?>
+                                        ?>
+                                        <div class="meeting-item"
+                                            style="border-left: 3px solid #9b59b6; padding: 10px; margin-bottom: 10px; background: #f8f9fa; border-radius: 5px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                                <div>
+                                                    <strong><?php echo htmlspecialchars($meeting['title']); ?></strong>
+                                                    <div style="font-size: 0.85rem; color: #7f8c8d;">
+                                                        <i class="far fa-calendar"></i>
+                                                        <?php echo date('d.m.Y', strtotime($meeting['meeting_date'])); ?>
+                                                        <br>
+                                                        <i class="far fa-clock"></i>
+                                                        <?php echo date('H:i', strtotime($meeting['meeting_time'])); ?>
+                                                    </div>
+                                                    <?php if (!empty($meeting['location'])): ?>
+                                                        <div style="font-size: 0.85rem; color: #7f8c8d;">
+                                                            <i class="fas fa-map-marker-alt"></i>
+                                                            <?php echo htmlspecialchars($meeting['location']); ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($meeting['notes'])): ?>
+                                                        <div
+                                                            style="font-size: 0.85rem; color: #555; margin-top: 5px; font-style: italic;">
+                                                            <?php echo htmlspecialchars($meeting['notes']); ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <form method="POST" style="margin: 0;"
+                                                    onsubmit="return confirm('Usuń to spotkanie?');">
+                                                    <input type="hidden" name="action" value="delete_meeting">
+                                                    <input type="hidden" name="meeting_id" value="<?php echo $meeting['id']; ?>">
+                                                    <button type="submit" class="btn btn-sm btn-danger"
+                                                        style="padding: 5px 10px; font-size: 0.75rem;">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
-                                        <?php if (!empty($meeting['location'])): ?>
-                                            <div style="font-size: 0.85rem; color: #7f8c8d;">
-                                                <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($meeting['location']); ?>
-                                            </div>
-                                        <?php endif; ?>
-                                        <?php if (!empty($meeting['notes'])): ?>
-                                            <div style="font-size: 0.85rem; color: #555; margin-top: 5px; font-style: italic;">
-                                                <?php echo htmlspecialchars($meeting['notes']); ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <form method="POST" style="margin: 0;" onsubmit="return confirm('Usuń to spotkanie?');">
-                                        <input type="hidden" name="action" value="delete_meeting">
-                                        <input type="hidden" name="meeting_id" value="<?php echo $meeting['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger" style="padding: 5px 10px; font-size: 0.75rem;">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            <?php
+                                        <?php
                                     endforeach;
                                 else:
                                     echo '<p style="color: #999; text-align: center; font-size: 0.9rem;">Brak zaplanowanych spotkań</p>';
@@ -469,12 +511,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         <form method="POST" style="margin-top: 15px;">
                             <input type="hidden" name="action" value="add_meeting">
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <input type="date" name="meeting_date" required style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
-                                <input type="time" name="meeting_time" value="10:00" required style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                                <input type="date" name="meeting_date" required
+                                    style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                                <input type="time" name="meeting_time" value="10:00" required
+                                    style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
                             </div>
-                            <input type="text" name="title" placeholder="Tytuł spotkania" required style="width: 100%; padding: 8px; margin-top: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
-                            <input type="text" name="location" placeholder="Lokalizacja (opcjonalnie)" style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
-                            <textarea name="notes" placeholder="Notatki do spotkania" rows="2" style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem; font-family: inherit; resize: vertical;"></textarea>
+                            <input type="text" name="title" placeholder="Tytuł spotkania" required
+                                style="width: 100%; padding: 8px; margin-top: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                            <input type="text" name="location" placeholder="Lokalizacja (opcjonalnie)"
+                                style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem;">
+                            <textarea name="notes" placeholder="Notatki do spotkania" rows="2"
+                                style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem; font-family: inherit; resize: vertical;"></textarea>
                             <button type="submit" class="btn btn-sm btn-success" style="width: 100%; margin-top: 10px;">
                                 <i class="fas fa-plus"></i> Dodaj Spotkanie
                             </button>
@@ -484,6 +531,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             </div>
         </main>
     </div>
+    <!-- Edit Client Modal -->
+    <div id="editModal" class="modal"
+        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
+        <div class="modal-content"
+            style="background-color:#fefefe; margin:5% auto; padding:20px; border:1px solid #888; width:80%; max-width:600px; border-radius:10px;">
+            <span class="close" onclick="closeEditModal()"
+                style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">&times;</span>
+            <h2 style="margin-bottom: 20px;">Edytuj Dane Klienta</h2>
+            <form method="POST" class="admin-form">
+                <input type="hidden" name="action" value="update_client">
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Imię i Nazwisko *</label>
+                    <input type="text" name="name" value="<?php echo htmlspecialchars($client['name']); ?>" required
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 5px;">Email</label>
+                        <input type="email" name="email" value="<?php echo htmlspecialchars($client['email']); ?>"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 5px;">Telefon</label>
+                        <input type="text" name="phone" value="<?php echo htmlspecialchars($client['phone']); ?>"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Adres</label>
+                    <input type="text" name="address" value="<?php echo htmlspecialchars($client['address']); ?>"
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 5px;">Nazwa Firmy</label>
+                        <input type="text" name="company_name"
+                            value="<?php echo htmlspecialchars($client['company_name']); ?>"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 5px;">NIP</label>
+                        <input type="text" name="nip" value="<?php echo htmlspecialchars($client['nip']); ?>"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Zapisz
+                    Zmiany</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal() { document.getElementById('editModal').style.display = 'block'; }
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('editModal')) closeEditModal();
+        }
+    </script>
 </body>
 
 </html>
