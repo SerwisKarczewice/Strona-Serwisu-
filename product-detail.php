@@ -130,7 +130,7 @@ function formatProductDescription($text)
                     <?php if ($product['image_path'] && file_exists($product['image_path'])): ?>
                         <div class="main-image">
                             <img src="<?php echo htmlspecialchars($product['image_path']); ?>"
-                                alt="<?php echo htmlspecialchars($product['name']); ?>" id="mainProductImg">
+                                alt="<?php echo htmlspecialchars($product['name']); ?>" id="mainProductImg" loading="lazy">
                         </div>
                     <?php else: ?>
                         <div class="no-image-big">
@@ -199,6 +199,7 @@ function formatProductDescription($text)
     </section>
 
     <?php include 'includes/footer.php'; ?>
+    <script src="js/main.js" defer></script>
 
     <style>
         .product-detail-page {
@@ -207,7 +208,7 @@ function formatProductDescription($text)
         }
 
         .detail-hero {
-            padding: 25px 0;
+            padding: 100px 0 25px;
             background: #fff;
             border-bottom: 1px solid #f0f0f0;
         }

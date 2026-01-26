@@ -126,7 +126,7 @@ $relatedServices = $stmt->fetchAll();
         }
 
         .service-hero {
-            padding: 60px 0 50px;
+            padding: 120px 0 50px;
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             border-bottom: 3px solid #f0f0f0;
         }
@@ -624,7 +624,7 @@ $relatedServices = $stmt->fetchAll();
                     <?php if (!empty($service['image_path']) && file_exists($service['image_path'])): ?>
                         <div class="service-image-section">
                             <img src="<?php echo htmlspecialchars($service['image_path']); ?>"
-                                alt="<?php echo htmlspecialchars($service['name']); ?>">
+                                alt="<?php echo htmlspecialchars($service['name']); ?>" loading="lazy">
                         </div>
                     <?php endif; ?>
                 </div>
@@ -704,6 +704,7 @@ $relatedServices = $stmt->fetchAll();
     <?php endif; ?>
 
     <?php include 'includes/footer.php'; ?>
+    <script src="js/main.js" defer></script>
 </body>
 
 </html>

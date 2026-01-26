@@ -36,7 +36,7 @@ increment_site_visits();
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "name": "SKK - Serwis Komputerowy Karczewice",
-      "image": "https://twojadomena.pl/images/logo.png",
+    "image": "https://twojadomena.pl/uploads/icons/logo.png",
       "url": "https://twojadomena.pl/",
       "telephone": "+48 123 456 789",
       "priceRange": "$$",
@@ -143,9 +143,6 @@ increment_site_visits();
                 </div>
             </div>
         </div>
-        <div class="hero-scroll">
-            <i class="fas fa-chevron-down"></i>
-        </div>
     </header>
 
     <section class="why-us">
@@ -154,35 +151,35 @@ increment_site_visits();
             <div class="why-grid">
                 <div class="why-card">
                     <div class="why-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Z Pasji do Sprzętu</h3>
+                    <p>Nie jesteśmy korporacją – serwis komputerów to nasza zajawka. Dbamy o każdy komputer tak, jakby
+                        był nasz własny.</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Szeroka Dostępność</h3>
+                    <p>Działamy na szerokim terenie – od Karczewic, przez Garnek, Rzeki i Kłomnice, aż po okoliczne
+                        miejscowości. Dojedziemy wszędzie tam, gdzie nas potrzebujesz!</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Energia i Szybkość</h3>
+                    <p>Mamy młody zapał i energię do działania. Odpisujemy błyskawicznie i nie każemy Ci czekać
+                        tygodniami na naprawę.</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
                         <i class="fas fa-money-bill-wave"></i>
                     </div>
-                    <h3>Najtańsi na rynku</h3>
-                    <p>Porównując ceny innych serwisów i sklepów z elektroniką jesteśmy w stanie zaoferować najniższe
-                        ceny na rynku.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-desktop"></i>
-                    </div>
-                    <h3>Specjaliści od PC</h3>
-                    <p>Składanie komputerów to nasz konik. Dobieramy idealne podzespoły, dbamy o perfekcyjny cable
-                        management i testujemy sprzęt, by służył Ci przez lata.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-handshake"></i>
-                    </div>
-                    <h3>Zależy Nam Bardziej</h3>
-                    <p>Dopiero budujemy swoją markę, dlatego każdy Klient jest dla nas VIP-em. Wkładamy w pracę 110%
-                        zaangażowania, by zapracować na Twoją pozytywną opinię.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3>Uczciwe Podejście</h3>
-                    <p>Jasne zasady i konkurencyjne ceny. Nie narzucamy zbędnych usług. Doradzamy tak, jak sami
-                        chcielibyśmy być obsłużeni.</p>
+                    <h3>Niskie Ceny</h3>
+                    <p>Uczciwe i niskie ceny to nasza zasada. Chcemy, aby profesjonalny serwis był dostępny dla każdego
+                        portfela.</p>
                 </div>
             </div>
         </div>
@@ -255,36 +252,6 @@ increment_site_visits();
         </div>
     </section>
 
-    <section class="news">
-        <div class="container">
-            <h2 class="section-title">Aktualności</h2>
-            <div class="news-grid" id="newsContainer">
-                <?php if (!empty($news_items)): ?>
-                    <?php foreach ($news_items as $news): ?>
-                        <div class="news-card">
-                            <div class="news-date">
-                                <i class="fas fa-calendar-alt"></i>
-                                <?php echo date('d.m.Y', strtotime($news['created_at'])); ?>
-                            </div>
-                            <h3><?php echo htmlspecialchars($news['title']); ?></h3>
-                            <p><?php echo htmlspecialchars($news['excerpt'] ?: substr($news['content'], 0, 150) . '...'); ?></p>
-                            <a href="news-detail.php?slug=<?php echo urlencode($news['slug']); ?>" class="news-link">
-                                Czytaj więcej <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="no-news-message"
-                        style="grid-column: 1 / -1; text-align: center; color: var(--text-light); font-size: 1.2rem; padding: 40px;">
-                        <i class="far fa-newspaper"
-                            style="font-size: 3rem; margin-bottom: 20px; color: #ccc; display: block;"></i>
-                        Brak aktualności na ten moment.
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </section>
-
     <section class="visit-section">
         <div class="container">
             <h2 class="section-title">Jak Możemy Się Spotkać?</h2>
@@ -312,9 +279,39 @@ increment_site_visits();
                     <ul class="visit-benefits">
                         <li><i class="fas fa-check"></i> Oszczędność czasu</li>
                         <li><i class="fas fa-check"></i> Usługa wykonana na miejscu</li>
-                        <li><i class="fas fa-times" style="color: red;"></i> 7 zł za dojazd</li>
+                        <li><i class="fas fa-times" style="color: red;"></i> 15 zł za dojazd</li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="news">
+        <div class="container">
+            <h2 class="section-title">Aktualności</h2>
+            <div class="news-grid" id="newsContainer">
+                <?php if (!empty($news_items)): ?>
+                    <?php foreach ($news_items as $news): ?>
+                        <div class="news-card">
+                            <div class="news-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                <?php echo date('d.m.Y', strtotime($news['created_at'])); ?>
+                            </div>
+                            <h3><?php echo htmlspecialchars($news['title']); ?></h3>
+                            <p><?php echo htmlspecialchars($news['excerpt'] ?: substr($news['content'], 0, 150) . '...'); ?></p>
+                            <a href="news-detail.php?slug=<?php echo urlencode($news['slug']); ?>" class="news-link">
+                                Czytaj więcej <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="no-news-message"
+                        style="grid-column: 1 / -1; text-align: center; color: var(--text-light); font-size: 1.2rem; padding: 40px;">
+                        <i class="far fa-newspaper"
+                            style="font-size: 3rem; margin-bottom: 20px; color: #ccc; display: block;"></i>
+                        Brak aktualności na ten moment.
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -447,7 +444,7 @@ increment_site_visits();
 
     <?php include 'includes/footer.php'; ?>
 
-    <script src="js/home.js"></script>
+    <script src="js/home.js" defer></script>
 </body>
 <style>
     .form-message {

@@ -173,7 +173,7 @@ $products = $stmt->fetchAll();
     </section>
 
     <?php include 'includes/footer.php'; ?>
-    <script src="js/main.js"></script>
+    <script src="js/main.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.filter-btn').forEach(btn => {

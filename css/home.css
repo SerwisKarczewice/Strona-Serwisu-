@@ -26,8 +26,8 @@ html {
     --white: #ffffff;
     --gradient-primary: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
     --gradient-secondary: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    --shadow-hover: 0 15px 40px rgba(255, 107, 53, 0.3);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Lżejszy cień */
+    --shadow-hover: 0 8px 25px rgba(255, 107, 53, 0.25);
 }
 
 body {
@@ -110,9 +110,16 @@ body {
 .floating-icon {
     position: absolute;
     font-size: 5rem;
-    /* Increased from 3rem */
     color: rgba(255, 255, 255, 0.15);
     animation: float 15s infinite ease-in-out;
+    will-change: transform; /* Hint to browser to optimize */
+}
+
+/* Wyłączenie animacji dla urządzeń mobilnych - oszczędność CPU i baterii */
+@media (max-width: 768px) {
+    .floating-icons {
+        display: none;
+    }
 }
 
 @keyframes float {
@@ -423,12 +430,14 @@ body {
 }
 
 @keyframes slide {
-    0% {
-        transform: translateX(0);
-    }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.333%); }
+}
 
-    100% {
-        transform: translateX(-33.333%);
+@media (prefers-reduced-motion: reduce) {
+    .services-slider, .floating-icon, .hero-scroll, .btn {
+        animation: none !important;
+        transition: none !important;
     }
 }
 

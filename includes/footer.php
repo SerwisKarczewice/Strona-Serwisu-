@@ -2,7 +2,7 @@
     <div class="container">
         <div class="footer-content">
             <div class="footer-col">
-                <h4>TechService</h4>
+                <h4>Serwis komputerowy - Karczewice</h4>
                 <p>Zapraszamy do odwiedzenia nas na innych portalach internetowych!</p>
                 <div class="social-links">
                     <a href="https://www.facebook.com/groups/905215172192288" target="_blank" aria-label="Facebook"><i

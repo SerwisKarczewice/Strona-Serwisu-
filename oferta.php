@@ -99,7 +99,39 @@ $packages = $stmt->fetchAll();
         </div>
     </section>
 
-    <section class="services-section">
+    <!-- Nawigacja po sekcjach (Mapa strony) -->
+    <div class="offer-nav-section">
+        <div class="container">
+            <div class="offer-nav-grid">
+                <a href="#single-services" class="offer-nav-card shadow-sm">
+                    <div class="nav-card-icon"><i class="fas fa-wrench"></i></div>
+                    <div class="nav-card-info">
+                        <strong>Usługi Pojedyncze</strong>
+                        <span>Naprawy, modernizacje i konfiguracje</span>
+                    </div>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <a href="#packages" class="offer-nav-card shadow-sm">
+                    <div class="nav-card-icon"><i class="fas fa-box"></i></div>
+                    <div class="nav-card-info">
+                        <strong>Pakiety Usług</strong>
+                        <span>Kompleksowe zestawy usług w niższej cenie</span>
+                    </div>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <a href="#contact-section" class="offer-nav-card shadow-sm">
+                    <div class="nav-card-icon"><i class="fas fa-phone"></i></div>
+                    <div class="nav-card-info">
+                        <strong>Kontakt i Wycena</strong>
+                        <span>Masz pytania? Potrzebujesz wyceny?</span>
+                    </div>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <section class="services-section" id="single-services">
         <div class="container">
             <h2 class="section-title">Usługi Pojedyncze</h2>
 
@@ -132,7 +164,7 @@ $packages = $stmt->fetchAll();
         </div>
     </section>
 
-    <section class="packages-section">
+    <section class="packages-section" id="packages">
         <div class="container">
             <h2 class="section-title">Pakiety Usług</h2>
             <p class="section-subtitle">Wybierz gotowy pakiet i oszczędź!</p>
@@ -191,7 +223,7 @@ $packages = $stmt->fetchAll();
             </div>
         </div>
     </section>
-    <section class="cta-section">
+    <section class="cta-section" id="contact-section">
         <div class="container">
             <div class="cta-content">
                 <h2>Nieznalazłeś usługi, która Cię interesuje?</h2>
@@ -208,12 +240,110 @@ $packages = $stmt->fetchAll();
     </section>
 
     <?php include 'includes/footer.php'; ?>
-    <script src="js/main.js"></script>
+    <script src="js/main.js" defer></script>
 </body>
 
 </html>
 
 <style>
+    html {
+        scroll-behavior: smooth;
+    }
+
+    #single-services,
+    #packages,
+    #contact-section {
+        scroll-margin-top: 100px;
+        /* Offset for fixed navbar */
+    }
+
+    /* Nawigacja po sekcjach */
+    .offer-nav-section {
+        background: #fff;
+        padding: 40px 0;
+        margin-top: -50px;
+        position: relative;
+        z-index: 10;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .offer-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .offer-nav-card {
+        background: #fff;
+        border: 2px solid #f0f0f0;
+        border-radius: 15px;
+        padding: 20px 25px;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+    }
+
+    .offer-nav-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-card-icon {
+        width: 50px;
+        height: 50px;
+        background: #fff5f2;
+        color: var(--primary-color);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .nav-card-info {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .nav-card-info strong {
+        font-size: 1.1rem;
+        color: var(--dark-color);
+        margin-bottom: 2px;
+    }
+
+    .nav-card-info span {
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+
+    .offer-nav-card .arrow {
+        color: #ddd;
+        transition: all 0.3s ease;
+    }
+
+    .offer-nav-card:hover .arrow {
+        color: var(--primary-color);
+        transform: scale(1.2);
+    }
+
+    @media (max-width: 768px) {
+        .offer-nav-section {
+            padding: 30px 0;
+            margin-top: 0;
+        }
+
+        .offer-nav-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .service-desc {
         font-size: 0.95rem;
         color: var(--text-light);

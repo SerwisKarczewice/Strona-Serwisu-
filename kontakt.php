@@ -780,7 +780,7 @@ $services = $stmt->fetchAll();
     </section>
 
     <?php include 'includes/footer.php'; ?>
-    <script src="js/main.js"></script>
+    <script src="js/main.js" defer></script>
 
     <script>
         // Przełączanie zakładek
