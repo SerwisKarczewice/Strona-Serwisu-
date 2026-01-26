@@ -86,8 +86,19 @@ function formatProductDescription($text)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="<?php echo htmlspecialchars(substr(strip_tags($product['description']), 0, 160)); ?>">
+    <meta name="keywords" content="<?php echo htmlspecialchars($product['name']); ?>, podzespoły komputerowe, sklep, cena">
     <title><?php echo htmlspecialchars($product['name']); ?> - Sklep | TechService</title>
+    <link rel="canonical" href="https://twojadomena.pl/product-detail.php?id=<?php echo intval($product['id']); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="<?php echo htmlspecialchars($product['name']); ?> - Sklep">
+    <meta property="og:description" content="<?php echo htmlspecialchars(substr(strip_tags($product['description']), 0, 160)); ?>">
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://twojadomena.pl/product-detail.php?id=<?php echo intval($product['id']); ?>">
+    <meta property="og:image" content="https://twojadomena.pl/images/product-og.jpg">
+    <meta property="og:locale" content="pl_PL">
     <link rel="stylesheet" href="css/style.css">
 </head>
 

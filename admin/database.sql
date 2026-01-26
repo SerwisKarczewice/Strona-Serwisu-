@@ -125,9 +125,7 @@ CREATE TABLE `invoices` (
 -- Dumping data for table `invoices`
 --
 
-INSERT INTO `invoices` (`id`, `invoice_number`, `invoice_type`, `client_id`, `client_name`, `client_email`, `client_phone`, `client_address`, `client_nip`, `client_company`, `subtotal`, `tax`, `total`, `payment_method`, `payment_status`, `notes`, `created_at`, `created_by`) VALUES
-(6, 'PAR/2026/01/0001', 'paragon', NULL, 'przyklad', 'aaa@gmail.com', '667767', '434', '', '', 28.46, 6.54, 35.00, 'gotówka', 'opłacona', '', '2026-01-16 15:33:10', 2),
-(7, 'FV/2026/01/0001', 'faktura', NULL, 'przyklad', 'aaa@gmail.com', '667767', '434', '', '', 28.46, 6.54, 35.00, 'gotówka', 'opłacona', '', '2026-01-16 17:14:20', 2);
+
 
 -- --------------------------------------------------------
 
@@ -153,9 +151,7 @@ CREATE TABLE `invoice_items` (
 -- Dumping data for table `invoice_items`
 --
 
-INSERT INTO `invoice_items` (`id`, `invoice_id`, `item_type`, `name`, `description`, `quantity`, `unit_price`, `tax_rate`, `total`, `service_id`, `product_id`) VALUES
-(8, 6, 'usługa', 'Czyszczenie komputera', NULL, 1.00, 35.00, 23.00, 35.00, 9, NULL),
-(9, 7, 'usługa', 'Czyszczenie komputera', NULL, 1.00, 35.00, 23.00, 35.00, 9, NULL);
+
 
 -- --------------------------------------------------------
 
@@ -207,11 +203,14 @@ CREATE TABLE `services` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
+  `detailed_description` longtext DEFAULT NULL,
+  `image_path` varchar(500) DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
   `discount_price` decimal(10,2) DEFAULT NULL,
   `category` enum('single','package') DEFAULT 'single',
   `is_active` tinyint(1) DEFAULT 1,
   `display_order` int(11) DEFAULT 0,
+  `execution_count` int(11) DEFAULT 0,
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -220,26 +219,26 @@ CREATE TABLE `services` (
 -- Dumping data for table `services`
 --
 
-INSERT INTO `services` (`id`, `name`, `description`, `price`, `discount_price`, `category`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 'Składanie zestawu komputerowego', 'Profesjonalne złożenie komputera z testowaniem', 120.00, NULL, 'single', 1, 1, '2026-01-10 01:45:37', '2026-01-10 11:48:21'),
-(2, 'Instalacja systemu operacyjnego', 'Windows 10 lub 11, pełna aktywacja', 40.00, NULL, 'single', 1, 2, '2026-01-10 01:45:37', NULL),
-(3, 'Przygotowanie stanowiska komputerowego', 'Konfiguracja sprzętu i podłączenie urządzeń', 40.00, NULL, 'single', 1, 3, '2026-01-10 01:45:37', NULL),
-(4, 'Optymalizacja BIOS', 'Konfiguracja ustawień, aktualizacja', 20.00, NULL, 'single', 1, 4, '2026-01-10 01:45:37', NULL),
-(5, 'Instalacja sterowników', 'Wszystkie sterowniki, najnowsze wersje', 15.00, NULL, 'single', 1, 5, '2026-01-10 01:45:37', NULL),
-(6, 'Instalacja programów', 'Wybrane programy, legalne oprogramowanie', 10.00, NULL, 'single', 1, 6, '2026-01-10 01:45:37', NULL),
-(7, 'Formatowanie dysku', 'Bezpieczne usunięcie danych', 10.00, NULL, 'single', 1, 7, '2026-01-10 01:45:37', NULL),
-(8, 'Partycjonowanie dysku', 'Podział na partycje, optymalna organizacja', 10.00, NULL, 'single', 1, 8, '2026-01-10 01:45:37', NULL),
-(9, 'Czyszczenie komputera', 'Czyszczenie mechaniczne i systemowe', 35.00, NULL, 'single', 1, 9, '2026-01-10 01:45:37', NULL),
-(10, 'Wymiana pasty termoprzewodzącej', 'Profesjonalna pasta, czyszczenie układu', 40.00, NULL, 'single', 1, 10, '2026-01-10 01:45:37', NULL),
-(11, 'Naprawa drobnych usterek', 'Diagnoza i naprawa', 20.00, NULL, 'single', 1, 11, '2026-01-10 01:45:37', NULL),
-(12, 'Wymiana końcówek RJ-45', 'Profesjonalny zacisk, test połączenia', 20.00, NULL, 'single', 1, 12, '2026-01-10 01:45:37', NULL),
-(13, 'Modernizacja urządzenia', 'Wymiana/dodanie podzespołów (cena za 1 usługę)', 15.00, NULL, 'single', 1, 13, '2026-01-10 01:45:37', NULL),
-(14, 'Usuwanie wirusów', 'Skanowanie i usunięcie zagrożeń', 15.00, NULL, 'single', 1, 14, '2026-01-10 01:45:37', NULL),
-(15, 'Pakiet Podstawowy', 'Składanie PC + Windows 11 + Przygotowanie stanowiska + Instalacja programów', 190.00, NULL, 'package', 1, 1, '2026-01-10 01:45:37', NULL),
-(16, 'Pakiet Rozszerzony', 'Podstawowy + Optymalizacja BIOS + Partycjonowanie + Sterowniki', 220.00, NULL, 'package', 1, 2, '2026-01-10 01:45:37', NULL),
-(17, 'Pakiet Odświeżenie i Konserwacja', 'Czyszczenie + Wymiana pasty + Optymalizacja + Usuwanie wirusów', 85.00, NULL, 'package', 1, 3, '2026-01-10 01:45:37', NULL),
-(18, 'Pakiet Drugie Życie Komputera', 'Modernizacja + Formatowanie + Reinstalacja + Sterowniki i programy', 100.00, NULL, 'package', 1, 4, '2026-01-10 01:45:37', NULL),
-(19, 'Pakiet Przenosiny', 'Kopia zapasowa + Reinstalacja systemu + Instalacja sterowników', 70.00, NULL, 'package', 1, 5, '2026-01-10 01:45:37', NULL);
+INSERT INTO `services` (`id`, `name`, `description`, `detailed_description`, `image_path`, `price`, `discount_price`, `category`, `is_active`, `display_order`, `execution_count`, `created_at`, `updated_at`) VALUES
+(1, 'Składanie zestawu komputerowego', 'Profesjonalne złożenie komputera z testowaniem', 'MONTAŻ:\n- Montaż podzespołów w obudowie\n- Ułożenie kabli\n- Uruchomienie próbne\n- Sprawdzenie działania', NULL, 120.00, NULL, 'single', 1, 1, 0, '2026-01-10 01:45:37', '2026-01-10 11:48:21'),
+(2, 'Instalacja systemu operacyjnego', 'Windows 10 lub 11, pełna aktywacja', 'INSTALACJA:\n- Instalacja systemu Windows\n- Wgranie sterowników\n- Ustawienie systemu gotowego do pracy', NULL, 40.00, NULL, 'single', 1, 2, 0, '2026-01-10 01:45:37', NULL),
+(3, 'Przygotowanie stanowiska komputerowego', 'Konfiguracja sprzętu i podłączenie urządzeń', 'KONFIGURACJA:\n- Podłączenie komputera i monitora\n- Podłączenie klawiatury i myszy\n- Uruchomienie i sprawdzenie', NULL, 40.00, NULL, 'single', 1, 3, 0, '2026-01-10 01:45:37', NULL),
+(4, 'Optymalizacja BIOS', 'Konfiguracja ustawień, aktualizacja', 'BIOS/UEFI:\n- Aktualizacja BIOS\n- Ustawienie pamięci RAM (XMP)\n- Konfiguracja wentylatorów', NULL, 20.00, NULL, 'single', 1, 4, 0, '2026-01-10 01:45:37', NULL),
+(5, 'Instalacja sterowników', 'Wszystkie sterowniki, najnowsze wersje', 'STEROWNIKI:\n- Pobranie sterowników\n- Instalacja sterowników płyty głównej\n- Instalacja sterowników karty graficznej', NULL, 15.00, NULL, 'single', 1, 5, 0, '2026-01-10 01:45:37', NULL),
+(6, 'Instalacja programów', 'Wybrane programy, legalne oprogramowanie', 'PROGRAMY:\n- Instalacja przeglądarki\n- Instalacja pakietu biurowego\n- Instalacja odtwarzaczy multimediów', NULL, 10.00, NULL, 'single', 1, 6, 0, '2026-01-10 01:45:37', NULL),
+(7, 'Formatowanie dysku', 'Bezpieczne usunięcie danych', 'FORMATOWANIE:\n- Usunięcie wszystkich danych\n- Przygotowanie dysku pod system\n- Sprawdzenie dysku', NULL, 10.00, NULL, 'single', 1, 7, 0, '2026-01-10 01:45:37', NULL),
+(8, 'Partycjonowanie dysku', 'Podział na partycje, optymalna organizacja', 'DYSK:\n- Utworzenie partycji\n- Zmiana rozmiaru partycji\n- Przypisanie liter dysków', NULL, 10.00, NULL, 'single', 1, 8, 0, '2026-01-10 01:45:37', NULL),
+(9, 'Czyszczenie komputera', 'Czyszczenie mechaniczne i systemowe', 'CZYSZCZENIE:\n- Wydmuchanie kurzu\n- Wyczyszczenie wentylatorów\n- Przetarcie obudowy', NULL, 35.00, NULL, 'single', 1, 9, 0, '2026-01-10 01:45:37', NULL),
+(10, 'Wymiana pasty termoprzewodzącej', 'Profesjonalna pasta, czyszczenie układu', 'CHŁODZENIE:\n- Usunięcie starej pasty\n- Nałożenie nowej pasty na procesor\n- Montaż chłodzenia', NULL, 40.00, NULL, 'single', 1, 10, 0, '2026-01-10 01:45:37', NULL),
+(11, 'Naprawa drobnych usterek', 'Diagnoza i naprawa', 'NAPRAWA:\n- Sprawdzenie usterki\n- Wymiana drobnych elementów\n- Test działania', NULL, 20.00, NULL, 'single', 1, 11, 0, '2026-01-10 01:45:37', NULL),
+(12, 'Wymiana końcówek RJ-45', 'Profesjonalny zacisk, test połączenia', 'SIECI:\n- Zarobienie nowej wtyczki\n- Sprawdzenie połączenia', NULL, 20.00, NULL, 'single', 1, 12, 0, '2026-01-10 01:45:37', NULL),
+(13, 'Modernizacja urządzenia', 'Wymiana/dodanie podzespołów (cena za 1 usługę)', 'MODERNIZACJA:\n- Montaż nowej części\n- Sprawdzenie działania\n- Instalacja sterowników do nowej części', NULL, 15.00, NULL, 'single', 1, 13, 0, '2026-01-10 01:45:37', NULL),
+(14, 'Usuwanie wirusów', 'Skanowanie i usunięcie zagrożeń', 'WIRUSY:\n- Skanowanie systemu\n- Usunięcie zagrożeń\n- Sprawdzenie systemu po czyszczeniu', NULL, 15.00, NULL, 'single', 1, 14, 0, '2026-01-10 01:45:37', NULL),
+(15, 'Pakiet Podstawowy', 'Składanie PC + Windows 11 + Przygotowanie stanowiska + Instalacja programów', 'W PAKIECIE:\n- Złożenie komputera\n- Instalacja Windows\n- Podłączenie stanowiska\n- Wgranie podstawowych programów', NULL, 190.00, NULL, 'package', 1, 1, 0, '2026-01-10 01:45:37', NULL),
+(16, 'Pakiet Rozszerzony', 'Podstawowy + Optymalizacja BIOS + Partycjonowanie + Sterowniki', 'W PAKIECIE:\n- Usługi z Pakietu Podstawowego\n- Ustawienie BIOS\n- Podział dysku na partycje\n- Instalacja wszystkich sterowników', NULL, 220.00, NULL, 'package', 1, 2, 0, '2026-01-10 01:45:37', NULL),
+(17, 'Pakiet Odświeżenie i Konserwacja', 'Czyszczenie + Wymiana pasty + Optymalizacja + Usuwanie wirusów', 'W PAKIECIE:\n- Wyczyszczenie z kurzu\n- Nowa pasta na procesorze\n- Usunięcie wirusów\n- Usprawnienie systemu', NULL, 85.00, NULL, 'package', 1, 3, 0, '2026-01-10 01:45:37', NULL),
+(18, 'Pakiet Drugie Życie Komputera', 'Modernizacja + Formatowanie + Reinstalacja + Sterowniki i programy', 'W PAKIECIE:\n- Montaż nowych części (np. dysk SSD)\n- Formatowanie dysku\n- Instalacja Windows na nowo\n- Wgranie sterowników i programów', NULL, 100.00, NULL, 'package', 1, 4, 0, '2026-01-10 01:45:37', NULL),
+(19, 'Pakiet Przenosiny', 'Kopia zapasowa + Reinstalacja systemu + Instalacja sterowników', 'W PAKIECIE:\n- Zgranie danych na dysk zewnętrzny\n- Reinstalacja systemu\n- Przywrócenie danych\n- Wgranie sterowników', NULL, 70.00, NULL, 'package', 1, 5, 0, '2026-01-10 01:45:37', NULL);
 
 --
 -- Indeksy dla zrzutów tabel
@@ -557,10 +556,18 @@ ALTER TABLE `service_team`
   ADD KEY `idx_member` (`team_member_id`);
 
 --
+-- Dumping data for table `team_members`
+--
+
+INSERT INTO `team_members` (`id`, `name`, `email`, `phone`, `role`, `is_active`, `created_at`) VALUES
+(1, 'Dawid Lechnaty', 'davqlech66@gmail.com', '536200332', NULL, 1, NOW()),
+(2, 'Norbert Wiewiórowski', 'norbertwiewiorowski@gmail.com', '662 993 490', NULL, 1, NOW());
+
+--
 -- AUTO_INCREMENT for table `team_members`
 --
 ALTER TABLE `team_members`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `financial_contributions`
@@ -629,6 +636,8 @@ ALTER TABLE `service_team`
 
 ALTER TABLE contact_messages ADD COLUMN client_id INT NULL DEFAULT NULL AFTER id;
 COMMIT;
+
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

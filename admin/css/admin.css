@@ -383,51 +383,76 @@ body {
 
 .admin-form {
     background: #fff;
-    padding: 30px;
+    padding: 40px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 28px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: 600;
     color: #2c3e50;
-    font-size: 0.95rem;
+    font-size: 0.98rem;
+    letter-spacing: 0.3px;
 }
 
 .form-group input[type="text"],
 .form-group input[type="number"],
+.form-group input[type="email"],
+.form-group input[type="password"],
 .form-group input[type="file"],
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 12px 15px;
+    padding: 13px 16px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.96rem;
     font-family: inherit;
     transition: all 0.3s ease;
     background: #fff;
+    color: #2c3e50;
+}
+
+.form-group input[type="text"]::placeholder,
+.form-group input[type="number"]::placeholder,
+.form-group input[type="email"]::placeholder,
+.form-group textarea::placeholder {
+    color: #bbb;
 }
 
 .form-group input[type="text"]:focus,
 .form-group input[type="number"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus,
 .form-group input[type="file"]:focus,
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
     border-color: #ff6b35;
     box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    background: #fafafa;
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff6b35' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.3em;
+    padding-right: 2.8rem;
 }
 
 .form-group textarea {
     resize: vertical;
-    min-height: 120px;
+    min-height: 130px;
+    line-height: 1.5;
 }
 
 .form-group small {
@@ -440,13 +465,52 @@ body {
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 25px;
+    gap: 30px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 35px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 28px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-top: 3px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #ff6b35;
 }
 
 #imagePreview,
 #videoPreview {
     margin-top: 20px;
     text-align: center;
+}
+
+#imagePreview img,
+#videoPreview video {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 #imagePreview img,

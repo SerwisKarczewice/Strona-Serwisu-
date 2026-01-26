@@ -23,35 +23,72 @@ if ($edit_mode) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $description = trim($_POST['description']);
+    $detailed_description = trim($_POST['detailed_description'] ?? '');
     $price = floatval($_POST['price']);
     $discount_price = !empty($_POST['discount_price']) ? floatval($_POST['discount_price']) : null;
     $category = $_POST['category'];
     $is_active = isset($_POST['is_active']) ? 1 : 0;
     $display_order = intval($_POST['display_order']);
+    $execution_count = intval($_POST['execution_count'] ?? 0);
+
+    $image_path = null;
+
+    // Obsługa przesyłania zdjęcia głównego
+    if (!empty($_FILES['image']['name'])) {
+        $upload_dir = '../uploads/services/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $file_ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (in_array($file_ext, $allowed) && $_FILES['image']['size'] <= 50 * 1024 * 1024) {
+            $filename = 'service_' . time() . '_' . uniqid() . '.' . $file_ext;
+            $filepath = $upload_dir . $filename;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $filepath)) {
+                $image_path = 'uploads/services/' . $filename;
+
+                // Usuń stare zdjęcie jeśli istnieje
+                if ($edit_mode && !empty($service['image_path']) && file_exists('../' . $service['image_path'])) {
+                    unlink('../' . $service['image_path']);
+                }
+            }
+        }
+    } elseif ($edit_mode && !empty($service['image_path'])) {
+        $image_path = $service['image_path'];
+    }
 
     if ($edit_mode) {
-        $stmt = $pdo->prepare("UPDATE services SET name = :name, description = :description, price = :price, discount_price = :discount_price, category = :category, is_active = :is_active, display_order = :display_order, updated_at = NOW() WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE services SET name = :name, description = :description, detailed_description = :detailed_description, image_path = :image_path, price = :price, discount_price = :discount_price, category = :category, is_active = :is_active, display_order = :display_order, execution_count = :execution_count, updated_at = NOW() WHERE id = :id");
         $stmt->execute([
             ':name' => $name,
             ':description' => $description,
+            ':detailed_description' => $detailed_description,
+            ':image_path' => $image_path,
             ':price' => $price,
             ':discount_price' => $discount_price,
             ':category' => $category,
             ':is_active' => $is_active,
             ':display_order' => $display_order,
+            ':execution_count' => $execution_count,
             ':id' => $_GET['id']
         ]);
         $message = 'Usługa została zaktualizowana!';
     } else {
-        $stmt = $pdo->prepare("INSERT INTO services (name, description, price, discount_price, category, is_active, display_order, created_at) VALUES (:name, :description, :price, :discount_price, :category, :is_active, :display_order, NOW())");
+        $stmt = $pdo->prepare("INSERT INTO services (name, description, detailed_description, image_path, price, discount_price, category, is_active, display_order, execution_count, created_at) VALUES (:name, :description, :detailed_description, :image_path, :price, :discount_price, :category, :is_active, :display_order, :execution_count, NOW())");
         $stmt->execute([
             ':name' => $name,
             ':description' => $description,
+            ':detailed_description' => $detailed_description,
+            ':image_path' => $image_path,
             ':price' => $price,
             ':discount_price' => $discount_price,
             ':category' => $category,
             ':is_active' => $is_active,
-            ':display_order' => $display_order
+            ':display_order' => $display_order,
+            ':execution_count' => $execution_count
         ]);
         $message = 'Usługa została dodana!';
     }
@@ -70,10 +107,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title><?php echo $edit_mode ? 'Edytuj' : 'Dodaj'; ?> Usługę - Panel Administracyjny</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/admin.css">
+
+    <!-- TinyMCE Editor -->
+    <script src="https://cdn.tiny.mce.com/1/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '#detailed_description',
+            height: 400,
+            menubar: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
+                'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | formatselect | ' +
+                'bold italic underline strikethrough | forecolor backcolor | ' +
+                'alignleft aligncenter alignright alignjustify | ' +
+                'bullist numlist outdent indent | removeformat | help',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px }',
+            language: 'pl'
+        });
+    </script>
 </head>
 
 <body>
-   <?php include 'includes/sidebar.php'; ?>
+    <div class="admin-wrapper">
+        <?php include 'includes/sidebar.php'; ?>
 
         <main class="main-content">
             <header class="content-header">
@@ -85,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </header>
 
             <div class="content-section full-width">
-                <form method="POST" class="admin-form">
+                <form method="POST" class="admin-form" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="name">Nazwa Usługi *</label>
                         <input type="text" id="name" name="name"
@@ -93,9 +152,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-group">
-                        <label for="description">Opis Usługi</label>
-                        <textarea id="description" name="description" rows="3"
-                            placeholder="Krótki opis usługi wyświetlany na stronie"><?php echo $service ? htmlspecialchars($service['description']) : ''; ?></textarea>
+                        <label for="description">Krótki Opis (wyświetlany w ofercie)</label>
+                        <textarea id="description" name="description" rows="2"
+                            placeholder="Np. Profesjonalne złożenie komputera z testowaniem"><?php echo $service ? htmlspecialchars($service['description']) : ''; ?></textarea>
+                        <small>Ta zawartość pojawia się na stronie oferty</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="detailed_description">Szczegółowy Opis (dla strony szczegółów usługi)</label>
+                        <textarea id="detailed_description"
+                            name="detailed_description"><?php echo $service ? htmlspecialchars($service['detailed_description'] ?? $service['description']) : ''; ?></textarea>
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            💡 Użyj edytora do formatowania tekstu - listy, pogrubienia, kolory itp.
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Zdjęcie Usługi (max 50MB)</label>
+                        <?php if ($service && !empty($service['image_path'])): ?>
+                            <div style="margin-bottom: 15px;">
+                                <img src="../<?php echo htmlspecialchars($service['image_path']); ?>"
+                                    alt="<?php echo htmlspecialchars($service['name']); ?>"
+                                    style="max-width: 300px; max-height: 200px; border-radius: 8px; object-fit: cover;">
+                                <p style="color: #666; font-size: 0.85rem; margin-top: 5px;">Aktualne zdjęcie</p>
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" id="image" name="image" accept="image/*">
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Dopuszczalne formaty: JPG, PNG, GIF, WebP (maks. rozmiar: 50MB)
+                        </small>
                     </div>
 
                     <div class="form-row">
@@ -128,6 +213,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 value="<?php echo $service ? $service['display_order'] : 0; ?>">
                             <small style="color: #666;">Niższa liczba = wyżej na liście</small>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="execution_count">Licznik Wykonań Usługi</label>
+                        <input type="number" id="execution_count" name="execution_count" min="0"
+                            value="<?php echo $service ? ($service['execution_count'] ?? 0) : 0; ?>">
+                        <small style="color: #666;">Ile razy ta usługa została wykonana (wyświetlane na stronie
+                            szczegółów)</small>
                     </div>
 
                     <div class="form-group checkbox-group">

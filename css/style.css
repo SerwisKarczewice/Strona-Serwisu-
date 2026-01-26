@@ -376,3 +376,22 @@ body {
         font-size: 16px;
     }
 }
+
+/* Styling dla kartek usług jako linki */
+.price-card {
+    display: block;
+}
+
+.price-card:hover i {
+    transform: translateX(5px);
+    transition: transform 0.3s ease;
+}
+
+.package-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.package-card:hover {
+    transform: translateY(-10px);
+}

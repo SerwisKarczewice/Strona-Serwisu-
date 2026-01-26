@@ -71,9 +71,59 @@ try {
     $subject = trim($_POST['subject'] ?? '');
     $message = trim($_POST['message'] ?? '');
     $email = trim($_POST['email'] ?? '');
+    $selected_services = trim($_POST['selected_services'] ?? '');
+
+    // Przygotowanie tekstu do wiadomości
+    $message_content = $message;
+
+    if (!empty($selected_services)) {
+        $items = explode(',', $selected_services);
+        $service_ids = [];
+        $product_ids = [];
+
+        foreach ($items as $item) {
+            $item = trim($item);
+            if (strpos($item, 'service_') === 0) {
+                $id = intval(substr($item, 8)); // 8 to długość 'service_'
+                if ($id > 0)
+                    $service_ids[] = $id;
+            } elseif (strpos($item, 'product_') === 0) {
+                $id = intval(substr($item, 8)); // 8 to długość 'product_'
+                if ($id > 0)
+                    $product_ids[] = $id;
+            }
+        }
+
+        if (!empty($service_ids) || !empty($product_ids)) {
+            $message_content .= "\n\n--- WYBRANE ELEMENTY ---\n";
+        }
+
+        if (!empty($service_ids)) {
+            $placeholders = implode(',', array_fill(0, count($service_ids), '?'));
+            $stmt = $pdo->prepare("SELECT name, category FROM services WHERE id IN ($placeholders)");
+            $stmt->execute($service_ids);
+            $services_data = $stmt->fetchAll();
+
+            foreach ($services_data as $s) {
+                $prefix = ($s['category'] == 'package') ? '[Pakiet]' : '[Usługa]';
+                $message_content .= "• $prefix " . $s['name'] . "\n";
+            }
+        }
+
+        if (!empty($product_ids)) {
+            $placeholders = implode(',', array_fill(0, count($product_ids), '?'));
+            $stmt = $pdo->prepare("SELECT name FROM products WHERE id IN ($placeholders)");
+            $stmt->execute($product_ids);
+            $products_data = $stmt->fetchAll();
+
+            foreach ($products_data as $p) {
+                $message_content .= "• [Produkt] " . $p['name'] . "\n";
+            }
+        }
+    }
 
     if (!empty($email)) {
-        $message .= "\n\nEmail klienta: " . $email;
+        $message_content .= "\n\nEmail klienta: " . $email;
     }
 
     if (empty($name) || empty($phone) || empty($subject) || empty($message)) {
@@ -91,7 +141,7 @@ try {
         ':phone' => $phone,
         ':address' => !empty($address) ? $address : null,
         ':subject' => $subject,
-        ':message' => $message
+        ':message' => $message_content
     ]);
 
     $_SESSION['message_timestamps'][] = $current_time;
@@ -99,7 +149,7 @@ try {
     // Wysyłka emaila - optymalizacja: @mail potrafi zamulać na Windows/XAMPP
     $to = 'kontakt@serwis.pl';
     $email_subject = 'Nowa wiadomość: ' . $subject;
-    $email_body = "Wiadomość z formularza:\n\nImię: $name\nTelefon: $phone\nAdres: $address\nTemat: $subject\n\nWiadomość:\n$message";
+    $email_body = "Wiadomość z formularza:\n\nImię: $name\nTelefon: $phone\nAdres: $address\nTemat: $subject\n\nWiadomość:\n$message_content";
     $headers = "From: noreply@serwis.pl\r\nReply-To: $phone\r\nContent-Type: text/plain; charset=utf-8";
 
     // Wykorzystujemy @ i sprawdzamy czy to nie localhost, bo na XAMPP mail() bez konfiguracji wisi 30s

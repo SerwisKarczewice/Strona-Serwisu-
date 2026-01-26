@@ -16,18 +16,18 @@ $packages = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Sprawdź naszą pełną ofertę usług serwisu komputerowego - składanie PC, naprawa laptopów, instalacja systemów. Konkurencyjne ceny!">
+        content="Oferta SKK: składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie, serwis sprzętu IT. Ceny konkurencyjne, najlepsi lokalni specjaliści!">
     <meta name="keywords"
-        content="cennik serwis komputerowy, ceny naprawa komputerów, składanie PC cena, instalacja Windows cena">
+        content="składanie PC, cena składania komputera, kupowanie komputera, czyszczenie komputera, naprawa laptopów, serwis IT Karczewice, usługi serwisowe">
     <title>Oferta i Cennik - Profesjonalny Serwis Komputerowy | TechService</title>
     <link rel="canonical" href="https://twojadomena.pl/oferta.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="Oferta i Cennik - Profesjonalny Serwis Komputerowy | TechService">
+    <meta property="og:title" content="Oferta Usług - Składanie PC, Naprawa, Czyszczenie | SKK Karczewice">
     <meta property="og:description"
-        content="Sprawdź naszą pełną ofertę usług serwisowych. Naprawa laptopów, składanie komputerów, instalacja systemów. Konkurencyjne ceny i szybka realizacja!">
+        content="Pełna oferta usług: składanie komputerów, kupowanie PC, naprawa sprzętu, czyszczenie. Profesjonalny serwis, konkurencyjne ceny, najlepszy support!">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://twojadomena.pl/oferta.php">
     <meta property="og:image" content="https://twojadomena.pl/images/oferta-og.jpg">
@@ -104,7 +104,7 @@ $packages = $stmt->fetchAll();
 
             <div class="pricing-grid">
                 <?php foreach ($single_services as $service): ?>
-                    <div class="price-card">
+                    <a href="service-detail.php?id=<?php echo intval($service['id']); ?>" class="price-card" style="text-decoration: none; color: inherit; transition: all 0.3s ease; cursor: pointer;">
                         <div class="price-icon">
                             <i class="fas fa-tools"></i>
                         </div>
@@ -118,9 +118,12 @@ $packages = $stmt->fetchAll();
                             <?php endif; ?>
                         </div>
                         <?php if ($service['description']): ?>
-                            <p class="service-desc"><?php echo htmlspecialchars($service['description']); ?></p>
+                            <p class="service-desc"><?php echo htmlspecialchars(substr($service['description'], 0, 100)); ?>...</p>
                         <?php endif; ?>
-                    </div>
+                        <p style="color: var(--primary-color); font-weight: 600; margin-top: 1rem;">
+                            Więcej szczegółów <i class="fas fa-arrow-right"></i>
+                        </p>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -138,7 +141,7 @@ $packages = $stmt->fetchAll();
                     $is_featured = ($package_index === 1); // Drugi pakiet będzie wyróżniony
                     $package_index++;
                     ?>
-                    <div class="package-card <?php echo $is_featured ? 'featured' : ''; ?>">
+                    <a href="service-detail.php?id=<?php echo intval($package['id']); ?>" class="package-card <?php echo $is_featured ? 'featured' : ''; ?>" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: all 0.3s ease;">
                         <?php if ($is_featured): ?>
                             <div class="package-badge">Polecane</div>
                         <?php endif; ?>
@@ -175,9 +178,10 @@ $packages = $stmt->fetchAll();
                             </div>
                         <?php endif; ?>
 
-                        <a href="kontakt.php" class="btn <?php echo $is_featured ? 'btn-primary' : 'btn-outline'; ?>">Zamów
-                            Pakiet</a>
-                    </div>
+                        <p style="color: var(--primary-color); font-weight: 600; margin-top: auto; padding-top: 1rem;">
+                            Dowiedz się więcej <i class="fas fa-arrow-right"></i>
+                        </p>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>

@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 TechService - Serwis Komputerowy. Wszelkie prawa zastrzeżone.</p>
+            <p>Dawid Lechnaty & Norbert Wiewórowski</p>
         </div>
     </div>
 </footer>

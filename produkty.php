@@ -11,8 +11,8 @@ $products = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Sklep z podzespołami komputerowymi - karty graficzne, procesory, pamięci RAM, dyski. Atrakcyjne ceny!">
-    <meta name="keywords" content="sklep komputerowy, podzespoły PC, karta graficzna, procesor, RAM, dysk SSD">
+        content="Sklep z podzespołami komputerowymi - karty graficzne, procesory, pamięci RAM, dyski SSD. Wysokiej jakości komponenty w atrakcyjnych cenach!">
+    <meta name="keywords" content="sklep komputerowy, podzespoły PC, karta graficzna, procesor, RAM, dysk SSD, komponenty PC">
     <title>Produkty - Podzespoły Komputerowe | TechService</title>
     <link rel="canonical" href="https://twojadomena.pl/produkty.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,7 +33,7 @@ $products = $stmt->fetchAll();
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Sklep z Podzespołami Komputerowymi",
-      "description": "Szeroki wybór podzespołów komputerowych i akcesoriów.",
+      "description": "Szeroki wybór wysokiej jakości podzespołów komputerowych w atrakcyjnych cenach.",
       "url": "https://twojadomena.pl/produkty.php",
       "breadcrumb": {
         "@type": "BreadcrumbList",
@@ -49,33 +49,6 @@ $products = $stmt->fetchAll();
             "position": 2,
             "name": "Produkty",
             "item": "https://twojadomena.pl/produkty.php"
-          }
-        ]
-      },
-      "mainEntity": {
-        "@type": "OfferCatalog",
-        "name": "Katalog Produktów",
-        "itemListElement": [
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Product",
-              "name": "Karty Graficzne"
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Product",
-              "name": "Procesory"
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Product",
-              "name": "Pamięci RAM"
-            }
           }
         ]
       }

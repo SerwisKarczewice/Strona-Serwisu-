@@ -146,3 +146,4 @@ Strona wykorzystuje czytelny i nowoczesny system typograficzny oparty na fontach
 - [x] Zaawansowany system finansowy (podział zysków).
 - [x] Inteligentne skalowanie UI dla 1080p.
 - [x] Generator faktur PDF.
+- [ ] System zamówień.

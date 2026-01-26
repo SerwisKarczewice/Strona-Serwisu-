@@ -16,14 +16,14 @@ increment_site_visits();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Profesjonalny serwis komputerowy - naprawa laptopów, komputerów stacjonarnych, serwis sprzętu IT. Szybko, tanio, profesjonalnie. Dowiedz się więcej!">
+        content="SKK - Serwis Komputerowy Karczewice. Składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie, serwis sprzętu IT. Najlepsi lokalni serwisanci!">
     <meta name="keywords"
-        content="serwis komputerowy, naprawa laptopów, naprawa komputerów, serwis IT, naprawa sprzętu komputerowego">
+        content="serwis komputerowy Karczewice, składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie komputerów, serwis IT, naprawa sprzętu, serwis PC">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Serwis Komputerowy">
-    <meta property="og:title" content="Profesjonalny Serwis Komputerowy - Naprawa i Modernizacja">
+    <meta property="og:title" content="SKK - Serwis Komputerowy Karczewice | Składanie PC, Naprawa, Czyszczenie">
     <meta property="og:description"
-        content="Zajmujemy się kompleksowym serwisem komputerowym. Naprawa, modernizacja, doradztwo. Zaufaj profesjonalistom!">
+        content="Jesteśmy najlepszymi lokalnymi serwisantami. Składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie i inne usługi IT.">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="pl_PL">
     <meta property="og:url" content="https://twojadomena.pl/">
@@ -34,8 +34,8 @@ increment_site_visits();
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "ComputerRepair",
-      "name": "TechService - Serwis Komputerowy",
+      "@type": "LocalBusiness",
+      "name": "SKK - Serwis Komputerowy Karczewice",
       "image": "https://twojadomena.pl/images/logo.png",
       "url": "https://twojadomena.pl/",
       "telephone": "+48 123 456 789",
@@ -43,8 +43,8 @@ increment_site_visits();
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "ul. Przykładowa 123",
-        "addressLocality": "Warszawa",
-        "postalCode": "00-001",
+        "addressLocality": "Karczewice",
+        "postalCode": "42-270",
         "addressCountry": "PL"
       },
       "geo": {
@@ -52,6 +52,12 @@ increment_site_visits();
         "latitude": 52.2297,
         "longitude": 21.0122
       },
+      "description": "Serwis komputerowy oferujący składanie komputerów, kupowanie PC, naprawy laptopów, czyszczenie i inne usługi IT.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Karczewice"
+      },
+      "knowsAbout": ["Składanie komputerów", "Kupowanie PC", "Naprawa laptopów", "Czyszczenie komputerów", "Serwis IT"],
       "openingHoursSpecification": [
         {
           "@type": "OpeningHoursSpecification",
@@ -110,9 +116,7 @@ increment_site_visits();
                 Serwis Komputerowy
                 <span class="title-accent">Karczewice</span>
             </h1>
-            <p class="hero-subtitle">Zajmiemy się Twoim komuterem szybko i profesjonalnie. Doświadczenie, jakość i
-                uczciwe
-                ceny to nasza wizytówka!</p>
+            <p class="hero-subtitle">Składamy oraz serwisujemy komputery lokalnie na terenie gminy Kłomnice..</p>
             <div class="hero-buttons">
                 <a href="oferta.php" class="btn btn-primary">
                     <i class="fas fa-tools"></i>
