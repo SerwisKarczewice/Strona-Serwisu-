@@ -84,6 +84,7 @@ increment_site_visits();
       ]
     }
     </script>
+    <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
     <title>Serwis Komputerowy - Profesjonalna Naprawa i Modernizacja | Szybko i Tanio</title>
     <link rel="canonical" href="https://twojadomena.pl/">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

@@ -100,6 +100,7 @@ $relatedServices = $stmt->fetchAll();
         content="<?php echo htmlspecialchars(substr(strip_tags($service['description']), 0, 160)); ?>">
     <meta name="keywords" content="<?php echo htmlspecialchars($service['name']); ?>, usługa, serwis komputerowy">
     <title><?php echo htmlspecialchars($service['name']); ?> - Usługi | TechService</title>
+    <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
     <link rel="canonical" href="https://twojadomena.pl/service-detail.php?id=<?php echo intval($service['id']); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">

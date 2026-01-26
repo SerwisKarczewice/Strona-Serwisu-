@@ -1,8 +1,8 @@
 <nav class="navbar">
     <div class="container">
         <a href="index.php" class="logo">
-            <i class="fas fa-laptop-code"></i>
-            <span>Tech<strong>Service</strong></span>
+            <img src="uploads/icons/logo.svg" alt="Serwis Komputerowy Karczewice">
+            <span class="logo-text">Serwis Komputerowy<br><small>Karczewice</small></span>
         </a>
         <ul class="nav-menu" id="navMenu">
             <li><a href="index.php">Start</a></li>
@@ -40,20 +40,38 @@
     .logo {
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #2c3e50;
+        gap: 12px;
         text-decoration: none;
+        padding: 5px 0;
     }
 
-    .logo i {
-        font-size: 1.8rem;
-        color: #ff6b35;
+    .logo img {
+        height: 50px;
+        width: auto;
+        transition: transform 0.3s ease;
     }
 
-    .logo strong {
+    .logo-text {
+        font-family: 'Poppins', sans-serif;
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.1rem;
+        line-height: 1.2;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .logo-text small {
         color: #ff6b35;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .logo:hover img {
+        transform: scale(1.05);
+        /* Subtle zoom on hover */
     }
 
     .nav-menu {

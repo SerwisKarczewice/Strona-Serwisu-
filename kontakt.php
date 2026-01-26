@@ -14,6 +14,7 @@ $services = $stmt->fetchAll();
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Skontaktuj się z SKK - Serwis Komputerowy Karczewice. Składanie komputerów, kupowanie PC, naprawa, czyszczenie. Zarezerwuj usługę online!">

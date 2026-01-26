@@ -14,6 +14,7 @@ $packages = $stmt->fetchAll();
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Oferta SKK: składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie, serwis sprzętu IT. Ceny konkurencyjne, najlepsi lokalni specjaliści!">
@@ -104,7 +105,8 @@ $packages = $stmt->fetchAll();
 
             <div class="pricing-grid">
                 <?php foreach ($single_services as $service): ?>
-                    <a href="service-detail.php?id=<?php echo intval($service['id']); ?>" class="price-card" style="text-decoration: none; color: inherit; transition: all 0.3s ease; cursor: pointer;">
+                    <a href="service-detail.php?id=<?php echo intval($service['id']); ?>" class="price-card"
+                        style="text-decoration: none; color: inherit; transition: all 0.3s ease; cursor: pointer;">
                         <div class="price-icon">
                             <i class="fas fa-tools"></i>
                         </div>
@@ -118,7 +120,8 @@ $packages = $stmt->fetchAll();
                             <?php endif; ?>
                         </div>
                         <?php if ($service['description']): ?>
-                            <p class="service-desc"><?php echo htmlspecialchars(substr($service['description'], 0, 100)); ?>...</p>
+                            <p class="service-desc"><?php echo htmlspecialchars(substr($service['description'], 0, 100)); ?>...
+                            </p>
                         <?php endif; ?>
                         <p style="color: var(--primary-color); font-weight: 600; margin-top: 1rem;">
                             Więcej szczegółów <i class="fas fa-arrow-right"></i>
@@ -141,7 +144,9 @@ $packages = $stmt->fetchAll();
                     $is_featured = ($package_index === 1); // Drugi pakiet będzie wyróżniony
                     $package_index++;
                     ?>
-                    <a href="service-detail.php?id=<?php echo intval($package['id']); ?>" class="package-card <?php echo $is_featured ? 'featured' : ''; ?>" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: all 0.3s ease;">
+                    <a href="service-detail.php?id=<?php echo intval($package['id']); ?>"
+                        class="package-card <?php echo $is_featured ? 'featured' : ''; ?>"
+                        style="text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: all 0.3s ease;">
                         <?php if ($is_featured): ?>
                             <div class="package-badge">Polecane</div>
                         <?php endif; ?>

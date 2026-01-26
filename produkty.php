@@ -12,7 +12,9 @@ $products = $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Sklep z podzespołami komputerowymi - karty graficzne, procesory, pamięci RAM, dyski SSD. Wysokiej jakości komponenty w atrakcyjnych cenach!">
-    <meta name="keywords" content="sklep komputerowy, podzespoły PC, karta graficzna, procesor, RAM, dysk SSD, komponenty PC">
+    <meta name="keywords"
+        content="sklep komputerowy, podzespoły PC, karta graficzna, procesor, RAM, dysk SSD, komponenty PC">
+    <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
     <title>Produkty - Podzespoły Komputerowe | TechService</title>
     <link rel="canonical" href="https://twojadomena.pl/produkty.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
