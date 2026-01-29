@@ -23,7 +23,7 @@ $packages = $stmt->fetchAll();
     <title>Oferta i Cennik - Profesjonalny Serwis Komputerowy | TechService</title>
     <link rel="canonical" href="https://twojadomena.pl/oferta.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2.0">
 
     <!-- Open Graph / Social Media -->
     <meta property="og:title" content="Oferta Usług - Składanie PC, Naprawa, Czyszczenie | SKK Karczewice">
@@ -96,6 +96,17 @@ $packages = $stmt->fetchAll();
         <div class="container">
             <h1>Nasza Oferta</h1>
             <p>Profesjonalne usługi serwisowe w konkurencyjnych cenach</p>
+        </div>
+    </section>
+
+    <section class="laptop-notice-section">
+        <div class="container">
+            <div class="laptop-notice">
+                <i class="fas fa-info-circle"></i>
+                <p><strong>Informacja o usługach dla laptopów:</strong> Ze względu na budowę laptopów, oferujemy głównie
+                    usługi programowe oraz dodanie dysku/RAM w starszych modelach. Dla komputerów stacjonarnych dostępny
+                    jest pełen zakres usług.</p>
+            </div>
         </div>
     </section>
 

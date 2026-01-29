@@ -88,7 +88,7 @@ increment_site_visits();
     <title>Serwis Komputerowy - Profesjonalna Naprawa i Modernizacja | Szybko i Tanio</title>
     <link rel="canonical" href="https://twojadomena.pl/">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/home.css?v=1.1">
+    <link rel="stylesheet" href="css/home.css?v=3.1">
 </head>
 
 <body>
@@ -113,7 +113,6 @@ increment_site_visits();
 
         <div class="container hero-content">
             <h1 class="hero-title">
-
                 Serwis Komputerowy
                 <span class="title-accent">Karczewice</span>
             </h1>
@@ -438,6 +437,17 @@ increment_site_visits();
                         Jeśli nieodbierzesz, wyślemy smsa.
                     </b>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="laptop-notice-section">
+        <div class="container">
+            <div class="laptop-notice">
+                <i class="fas fa-info-circle"></i>
+                <p><strong>Informacja o usługach dla laptopów:</strong> Ze względu na budowę laptopów, oferujemy głównie
+                    usługi programowe oraz dodanie dysku/RAM w starszych modelach. Dla komputerów stacjonarnych dostępny
+                    jest pełen zakres usług.</p>
             </div>
         </div>
     </section>
