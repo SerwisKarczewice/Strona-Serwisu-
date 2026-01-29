@@ -15,18 +15,18 @@ $products = $stmt->fetchAll();
     <meta name="keywords"
         content="sklep komputerowy, podzespoły PC, karta graficzna, procesor, RAM, dysk SSD, komponenty PC">
     <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
-    <title>Produkty - Podzespoły Komputerowe | TechService</title>
-    <link rel="canonical" href="https://twojadomena.pl/produkty.php">
+    <title>Sklep i Podzespoły - Serwis Komputerowy | SKK Karczewice</title>
+    <link rel="canonical" href="https://serwiskomputerowy-karczewice.pl/produkty.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="Produkty - Podzespoły Komputerowe | TechService">
+    <meta property="og:title" content="Podzespoły Komputerowe - Sklep SKK Karczewice">
     <meta property="og:description"
-        content="Sklep z podzespołami komputerowymi. Karty graficzne, procesory, pamięci RAM, dyski SSD wysokiej jakości. Sprawdź naszą ofertę!">
+        content="Szeroki wybór komponentów PC: karty graficzne, procesory, dyski SSD. Sprawdź ofertę podzespołów w najlepszych cenach!">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://twojadomena.pl/produkty.php">
-    <meta property="og:image" content="https://twojadomena.pl/images/produkty-og.jpg">
+    <meta property="og:url" content="https://serwiskomputerowy-karczewice.pl/produkty.php">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
     <meta property="og:locale" content="pl_PL">
 
     <!-- Structured Data (JSON-LD) -->
@@ -34,9 +34,9 @@ $products = $stmt->fetchAll();
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "name": "Sklep z Podzespołami Komputerowymi",
-      "description": "Szeroki wybór wysokiej jakości podzespołów komputerowych w atrakcyjnych cenach.",
-      "url": "https://twojadomena.pl/produkty.php",
+      "name": "Sklep z Podzespołami Komputerowymi SKK",
+      "description": "Najlepsze podzespoły komputerowe w Karczewicach. Karty graficzne, procesory i wiele więcej.",
+      "url": "https://serwiskomputerowy-karczewice.pl/produkty.php",
       "breadcrumb": {
         "@type": "BreadcrumbList",
         "itemListElement": [
@@ -44,13 +44,13 @@ $products = $stmt->fetchAll();
             "@type": "ListItem",
             "position": 1,
             "name": "Strona Główna",
-            "item": "https://twojadomena.pl/"
+            "item": "https://serwiskomputerowy-karczewice.pl/"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Produkty",
-            "item": "https://twojadomena.pl/produkty.php"
+            "item": "https://serwiskomputerowy-karczewice.pl/produkty.php"
           }
         ]
       }

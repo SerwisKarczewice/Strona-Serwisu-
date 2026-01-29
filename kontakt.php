@@ -20,19 +20,57 @@ $services = $stmt->fetchAll();
         content="Skontaktuj się z SKK - Serwis Komputerowy Karczewice. Składanie komputerów, kupowanie PC, naprawa, czyszczenie. Zarezerwuj usługę online!">
     <meta name="keywords"
         content="kontakt serwis komputerowy, zarezerwuj składanie PC, wycena naprawa komputera, czyszczenie komputera Karczewice, serwis IT kontakt">
-    <title>Kontakt - Serwis Komputerowy | TechService</title>
-    <link rel="canonical" href="https://twojadomena.pl/kontakt.php">
+    <title>Kontakt - Serwis Komputerowy Karczewice | SKK</title>
+    <link rel="canonical" href="https://serwiskomputerowy-karczewice.pl/kontakt.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="Kontakt - Serwis Komputerowy | TechService">
+    <meta property="og:title" content="Kontakt - SKK Serwis Komputerowy Karczewice">
     <meta property="og:description"
-        content="Skontaktuj się z nami - chętnie odpowiemy na wszystkie pytania. Adres, telefon, email i formularz kontaktowy.">
+        content="Skontaktuj się z nami! Adres, telefon oraz formularz kontaktowy serwisu komputerowego w Karczewicach. Jesteśmy do Twojej dyspozycji.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://twojadomena.pl/kontakt.php">
-    <meta property="og:image" content="https://twojadomena.pl/images/kontakt-og.jpg">
+    <meta property="og:url" content="https://serwiskomputerowy-karczewice.pl/kontakt.php">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
     <meta property="og:locale" content="pl_PL">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "SKK - Serwis Komputerowy Karczewice",
+      "image": "https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png",
+      "url": "https://serwiskomputerowy-karczewice.pl/kontakt.php",
+      "telephone": "+48 662 993 490",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "ul. Nadrzeczna 3b",
+        "addressLocality": "Karczewice",
+        "postalCode": "42-270",
+        "addressCountry": "PL"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 50.915233,
+        "longitude": 19.345864
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          "opens": "09:00",
+          "closes": "18:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Saturday",
+          "opens": "10:00",
+          "closes": "14:00"
+        }
+      ]
+    }
+    </script>
 
     <style>
         :root {
@@ -610,7 +648,7 @@ $services = $stmt->fetchAll();
             right: 0;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             border: 1px solid #eee;
             z-index: 1000;
             max-height: 250px;
@@ -668,14 +706,17 @@ $services = $stmt->fetchAll();
         .dropdown-list::-webkit-scrollbar {
             width: 6px;
         }
+
         .dropdown-list::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 10px;
         }
+
         .dropdown-list::-webkit-scrollbar-thumb {
             background: #ddd;
             border-radius: 10px;
         }
+
         .dropdown-list::-webkit-scrollbar-thumb:hover {
             background: var(--primary-color);
         }
@@ -1046,14 +1087,14 @@ $services = $stmt->fetchAll();
                     e.stopPropagation();
                     const value = option.getAttribute('data-value');
                     const name = option.getAttribute('data-name');
-                    
+
                     // Update state
                     currentSelections[type] = { id: value, name: name };
-                    
+
                     // Update UI
                     trigger.querySelector('span').innerText = name;
                     dropdown.classList.remove('active');
-                    
+
                     // Mark as selected
                     options.forEach(opt => opt.classList.remove('selected'));
                     option.classList.add('selected');
@@ -1073,7 +1114,7 @@ $services = $stmt->fetchAll();
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
             // Reset other dropdowns visually? (optional)
-            
+
             event.target.closest('.tab-btn').classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
         }
@@ -1095,7 +1136,7 @@ $services = $stmt->fetchAll();
 
             selectedItems[id] = { name, type };
             updateChips();
-            
+
             // Reset dropdown visual state
             const dropdown = document.getElementById('dropdown-' + type);
             const placeholder = type === 'single' ? 'usługę' : (type === 'package' ? 'pakiet' : 'produkt');

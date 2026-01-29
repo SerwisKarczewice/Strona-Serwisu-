@@ -15,18 +15,18 @@ $gallery_items = $stmt->fetchAll();
         content="Galeria zdjęć naszego serwisu komputerowego - zobacz zrealizowane projekty, naprawy i złożone zestawy PC.">
     <meta name="keywords" content="galeria serwis komputerowy, zrealizowane projekty, zdjęcia napraw PC">
     <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
-    <title>Galeria - Nasze Realizacje | TechService</title>
-    <link rel="canonical" href="https://twojadomena.pl/galeria.php">
+    <title>Galeria i Realizacje - Serwis Komputerowy | SKK Karczewice</title>
+    <link rel="canonical" href="https://serwiskomputerowy-karczewice.pl/galeria.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="Galeria - Nasze Realizacje | TechService">
+    <meta property="og:title" content="Galeria Realizacji - SKK serwiskomputerowy-karczewice.pl">
     <meta property="og:description"
-        content="Galeria zdjęć naszego serwisu komputerowego - zobacz zrealizowane projekty, naprawy i złożone zestawy PC.">
+        content="Zobacz nasze zrealizowane projekty: od napraw laptopów po zaawansowane zestawy gamingowe PC. Galeria SKK Karczewice.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://twojadomena.pl/galeria.php">
-    <meta property="og:image" content="https://twojadomena.pl/images/galeria-og.jpg">
+    <meta property="og:url" content="https://serwiskomputerowy-karczewice.pl/galeria.php">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
     <meta property="og:locale" content="pl_PL">
 </head>
 

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and includes
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /config.php
+Disallow: /send_message.php
+
+# Sitemap location
+Sitemap: https://serwiskomputerowy-karczewice.pl/sitemap.xml

@@ -20,18 +20,18 @@ $packages = $stmt->fetchAll();
         content="Oferta SKK: składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie, serwis sprzętu IT. Ceny konkurencyjne, najlepsi lokalni specjaliści!">
     <meta name="keywords"
         content="składanie PC, cena składania komputera, kupowanie komputera, czyszczenie komputera, naprawa laptopów, serwis IT Karczewice, usługi serwisowe">
-    <title>Oferta i Cennik - Profesjonalny Serwis Komputerowy | TechService</title>
-    <link rel="canonical" href="https://twojadomena.pl/oferta.php">
+    <title>Oferta i Cennik - Profesjonalny Serwis Komputerowy | SKK Karczewice</title>
+    <link rel="canonical" href="https://serwiskomputerowy-karczewice.pl/oferta.php">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css?v=2.0">
 
     <!-- Open Graph / Social Media -->
     <meta property="og:title" content="Oferta Usług - Składanie PC, Naprawa, Czyszczenie | SKK Karczewice">
     <meta property="og:description"
-        content="Pełna oferta usług: składanie komputerów, kupowanie PC, naprawa sprzętu, czyszczenie. Profesjonalny serwis, konkurencyjne ceny, najlepszy support!">
+        content="Pełna oferta usług: składanie komputerów, modernizacja PC, naprawa sprzętu, czyszczenie laptopów. Profesjonalny serwis w gminie Kłomnice!">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://twojadomena.pl/oferta.php">
-    <meta property="og:image" content="https://twojadomena.pl/images/oferta-og.jpg">
+    <meta property="og:url" content="https://serwiskomputerowy-karczewice.pl/oferta.php">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
     <meta property="og:locale" content="pl_PL">
 
     <!-- Structured Data (JSON-LD) -->
@@ -40,11 +40,13 @@ $packages = $stmt->fetchAll();
       "@context": "https://schema.org",
       "@type": "Service",
       "name": "Naprawa i Serwis Komputerowy",
+      "description": "Profesjonalna naprawa komputerów, składanie nowych jednostek PC oraz modernizacja laptopów w Karczewicach.",
       "provider": {
         "@type": "LocalBusiness",
-        "name": "TechService - Serwis Komputerowy Karczewice",
-        "image": "https://twojadomena.pl/images/logo.png",
+        "name": "SKK - Serwis Komputerowy Karczewice",
+        "image": "https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png",
         "telephone": "+48 662 993 490",
+        "url": "https://serwiskomputerowy-karczewice.pl/",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "ul. Nadrzeczna 3b",
@@ -60,27 +62,27 @@ $packages = $stmt->fetchAll();
       },
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
-        "name": "Usługi Serwisowe",
+        "name": "Usługi IT",
         "itemListElement": [
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Naprawa Laptopów"
+              "name": "Naprawa i modernizacja laptopów"
             }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Składanie Komputerów PC"
+              "name": "Składanie komputerów gamingowych i biurowych"
             }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Instalacja Oprogramowania"
+              "name": "Czyszczenie i konserwacja układów chłodzenia"
             }
           }
         ]

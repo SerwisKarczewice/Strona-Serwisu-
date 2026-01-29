@@ -99,19 +99,21 @@ $relatedServices = $stmt->fetchAll();
     <meta name="description"
         content="<?php echo htmlspecialchars(substr(strip_tags($service['description']), 0, 160)); ?>">
     <meta name="keywords" content="<?php echo htmlspecialchars($service['name']); ?>, usługa, serwis komputerowy">
-    <title><?php echo htmlspecialchars($service['name']); ?> - Usługi | TechService</title>
+    <title><?php echo htmlspecialchars($service['name']); ?> - Usługi | SKK Karczewice</title>
     <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
-    <link rel="canonical" href="https://twojadomena.pl/service-detail.php?id=<?php echo intval($service['id']); ?>">
+    <link rel="canonical"
+        href="https://serwiskomputerowy-karczewice.pl/service-detail.php?id=<?php echo intval($service['id']); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="<?php echo htmlspecialchars($service['name']); ?>">
+    <meta property="og:title" content="<?php echo htmlspecialchars($service['name']); ?> - SKK Serwis">
     <meta property="og:description"
         content="<?php echo htmlspecialchars(substr(strip_tags($service['description']), 0, 160)); ?>">
     <meta property="og:type" content="website">
     <meta property="og:url"
-        content="https://twojadomena.pl/service-detail.php?id=<?php echo intval($service['id']); ?>">
+        content="https://serwiskomputerowy-karczewice.pl/service-detail.php?id=<?php echo intval($service['id']); ?>">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
 
     <style>
         :root {

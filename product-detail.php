@@ -88,20 +88,21 @@ function formatProductDescription($text)
         content="<?php echo htmlspecialchars(substr(strip_tags($product['description']), 0, 160)); ?>">
     <meta name="keywords"
         content="<?php echo htmlspecialchars($product['name']); ?>, podzespoły komputerowe, sklep, cena">
-    <title><?php echo htmlspecialchars($product['name']); ?> - Sklep | TechService</title>
+    <title><?php echo htmlspecialchars($product['name']); ?> - Sklep | SKK Karczewice</title>
     <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
-    <link rel="canonical" href="https://twojadomena.pl/product-detail.php?id=<?php echo intval($product['id']); ?>">
+    <link rel="canonical"
+        href="https://serwiskomputerowy-karczewice.pl/product-detail.php?id=<?php echo intval($product['id']); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="<?php echo htmlspecialchars($product['name']); ?> - Sklep">
+    <meta property="og:title" content="<?php echo htmlspecialchars($product['name']); ?> - SKK Karczewice">
     <meta property="og:description"
         content="<?php echo htmlspecialchars(substr(strip_tags($product['description']), 0, 160)); ?>">
     <meta property="og:type" content="product">
     <meta property="og:url"
-        content="https://twojadomena.pl/product-detail.php?id=<?php echo intval($product['id']); ?>">
-    <meta property="og:image" content="https://twojadomena.pl/images/product-og.jpg">
+        content="https://serwiskomputerowy-karczewice.pl/product-detail.php?id=<?php echo intval($product['id']); ?>">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
     <meta property="og:locale" content="pl_PL">
     <link rel="stylesheet" href="css/style.css">
 </head>

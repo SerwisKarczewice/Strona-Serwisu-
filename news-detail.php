@@ -33,21 +33,21 @@ $other_news = $stmt->fetchAll();
     <meta name="description"
         content="<?php echo htmlspecialchars($news['excerpt'] ?: substr(strip_tags($news['content']), 0, 160)); ?>">
     <meta name="keywords" content="aktualności, news, serwis komputerowy, artykuł">
-    <title><?php echo htmlspecialchars($news['title']); ?> - TechService</title>
+    <title><?php echo htmlspecialchars($news['title']); ?> - Aktualności | SKK Karczewice</title>
     <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
     <link rel="canonical"
-        href="https://twojadomena.pl/news-detail.php?slug=<?php echo htmlspecialchars($news['slug']); ?>">
+        href="https://serwiskomputerowy-karczewice.pl/news-detail.php?slug=<?php echo htmlspecialchars($news['slug']); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="<?php echo htmlspecialchars($news['title']); ?>">
+    <meta property="og:title" content="<?php echo htmlspecialchars($news['title']); ?> - SKK Aktualności">
     <meta property="og:description"
         content="<?php echo htmlspecialchars($news['excerpt'] ?: substr(strip_tags($news['content']), 0, 160)); ?>">
     <meta property="og:type" content="article">
     <meta property="og:url"
-        content="https://twojadomena.pl/news-detail.php?slug=<?php echo htmlspecialchars($news['slug']); ?>">
-    <meta property="og:image" content="https://twojadomena.pl/images/news-og.jpg">
+        content="https://serwiskomputerowy-karczewice.pl/news-detail.php?slug=<?php echo htmlspecialchars($news['slug']); ?>">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
     <meta property="og:locale" content="pl_PL">
     <meta property="article:published_time" content="<?php echo date('c', strtotime($news['created_at'])); ?>">
 </head>

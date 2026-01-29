@@ -16,19 +16,19 @@ increment_site_visits();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="SKK - Serwis Komputerowy Karczewice. Składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie, serwis sprzętu IT. Najlepsi lokalni serwisanci!">
+        content="SKK - Serwis Komputerowy Karczewice. Profesjonalne składanie komputerów, tanie kupowanie PC, naprawa laptopów, czyszczenie i serwis IT w gminie Kłomnice.">
     <meta name="keywords"
-        content="serwis komputerowy Karczewice, składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie komputerów, serwis IT, naprawa sprzętu, serwis PC">
+        content="serwis komputerowy Karczewice, składanie komputerów Kłomnice, tanie PC, naprawa laptopów, czyszczenie komputerów, serwis IT, serwis PC Karczewice">
     <meta name="robots" content="index, follow">
-    <meta name="author" content="Serwis Komputerowy">
+    <meta name="author" content="SKK - Serwis Komputerowy">
     <meta property="og:title" content="SKK - Serwis Komputerowy Karczewice | Składanie PC, Naprawa, Czyszczenie">
     <meta property="og:description"
-        content="Jesteśmy najlepszymi lokalnymi serwisantami. Składanie komputerów, kupowanie PC, naprawa laptopów, czyszczenie i inne usługi IT.">
+        content="Najlepszy lokalny serwis komputerowy w Karczewicach. Oferujemy składanie PC, naprawę laptopów oraz profesjonalne czyszczenie sprzętu IT. Sprawdź nas!">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="pl_PL">
-    <meta property="og:url" content="https://twojadomena.pl/">
-    <meta property="og:image" content="https://twojadomena.pl/images/og-home.jpg">
-    <meta property="og:site_name" content="TechService">
+    <meta property="og:url" content="https://serwiskomputerowy-karczewice.pl/">
+    <meta property="og:image" content="https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png">
+    <meta property="og:site_name" content="Serwis Komputerowy Karczewice">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -36,23 +36,23 @@ increment_site_visits();
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "name": "SKK - Serwis Komputerowy Karczewice",
-    "image": "https://twojadomena.pl/uploads/icons/logo.png",
-      "url": "https://twojadomena.pl/",
-      "telephone": "+48 123 456 789",
+      "image": "https://serwiskomputerowy-karczewice.pl/uploads/icons/logo.png",
+      "url": "https://serwiskomputerowy-karczewice.pl/",
+      "telephone": "+48 662 993 490",
       "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "ul. Przykładowa 123",
+        "streetAddress": "ul. Nadrzeczna 3b",
         "addressLocality": "Karczewice",
         "postalCode": "42-270",
         "addressCountry": "PL"
       },
       "geo": {
         "@type": "GeoCoordinates",
-        "latitude": 52.2297,
-        "longitude": 21.0122
+        "latitude": 50.915233,
+        "longitude": 19.345864
       },
-      "description": "Serwis komputerowy oferujący składanie komputerów, kupowanie PC, naprawy laptopów, czyszczenie i inne usługi IT.",
+      "description": "Profesjonalny serwis komputerowy w Karczewicach. Oferujemy składanie komputerów, kupowanie PC, naprawy laptopów, czyszczenie oraz pełen zakres usług IT.",
       "areaServed": {
         "@type": "City",
         "name": "Karczewice"
@@ -79,14 +79,14 @@ increment_site_visits();
         }
       ],
       "sameAs": [
-        "https://facebook.com/TwojSerwis",
-        "https://instagram.com/TwojSerwis"
+        "https://serwiskomputerowy-karczewice.pl/",
+        "https://www.facebook.com/serwiskomputerowykarczewice"
       ]
     }
     </script>
+    <link rel="canonical" href="https://serwiskomputerowy-karczewice.pl/">
     <link rel="icon" type="image/svg+xml" href="uploads/icons/favicon.svg">
     <title>Serwis Komputerowy - Profesjonalna Naprawa i Modernizacja | Szybko i Tanio</title>
-    <link rel="canonical" href="https://twojadomena.pl/">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/home.css?v=6.0">
 </head>
