@@ -88,7 +88,7 @@ increment_site_visits();
     <title>Serwis Komputerowy - Profesjonalna Naprawa i Modernizacja | Szybko i Tanio</title>
     <link rel="canonical" href="https://twojadomena.pl/">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/home.css?v=3.1">
+    <link rel="stylesheet" href="css/home.css?v=6.0">
 </head>
 
 <body>
@@ -112,33 +112,41 @@ increment_site_visits();
         </div>
 
         <div class="container hero-content">
-            <h1 class="hero-title">
-                Serwis Komputerowy
-                <span class="title-accent">Karczewice</span>
-            </h1>
-            <p class="hero-subtitle">Składamy oraz serwisujemy komputery lokalnie na terenie gminy Kłomnice..</p>
-            <div class="hero-buttons">
-                <a href="oferta.php" class="btn btn-primary">
-                    <i class="fas fa-tools"></i>
-                    Zobacz Ofertę
-                </a>
-                <a href="kontakt.php" class="btn btn-secondary">
-                    <i class="fas fa-phone"></i>
-                    Skontaktuj się
-                </a>
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    Serwis Komputerowy
+                    <span class="title-accent">Karczewice</span>
+                </h1>
+                <p class="hero-subtitle">Składamy oraz serwisujemy komputery lokalnie na terenie gminy Kłomnice..</p>
+                <div class="hero-buttons">
+                    <a href="oferta.php" class="btn btn-primary">
+                        <i class="fas fa-tools"></i>
+                        Zobacz Ofertę
+                    </a>
+                    <a href="kontakt.php" class="btn btn-secondary">
+                        <i class="fas fa-phone"></i>
+                        Skontaktuj się
+                    </a>
+                </div>
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <i class="fas fa-clock"></i>
+                        <span>Szybka realizacja</span>
+                    </div>
+                    <div class="hero-feature">
+                        <i class="fas fa-certificate"></i>
+                        <span>Gwarancja jakości</span>
+                    </div>
+                    <div class="hero-feature">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Uczciwe ceny</span>
+                    </div>
+                </div>
             </div>
-            <div class="hero-features">
-                <div class="hero-feature">
-                    <i class="fas fa-clock"></i>
-                    <span>Szybka realizacja</span>
-                </div>
-                <div class="hero-feature">
-                    <i class="fas fa-certificate"></i>
-                    <span>Gwarancja jakości</span>
-                </div>
-                <div class="hero-feature">
-                    <i class="fas fa-hand-holding-usd"></i>
-                    <span>Uczciwe ceny</span>
+
+            <div class="hero-visual">
+                <div class="hero-logo-box">
+                    <img src="uploads/icons/logo.svg" alt="Serwis Komputerowy Karczewice Logo">
                 </div>
             </div>
         </div>
